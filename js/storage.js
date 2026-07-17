@@ -220,6 +220,8 @@
     addPoints: function (amount) {
       var state = Storage.getState();
       state.points += amount;
+      // 积分不允许为负（兜底，避免扣分异常导致负数）
+      if (state.points < 0) state.points = 0;
       // 规避浮点累加误差
       state.points = Math.round(state.points * 100) / 100;
       Storage.saveState(state);

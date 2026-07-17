@@ -22,7 +22,7 @@
   --color-shadow: rgba(74, 144, 217, 0.18);
   --mascot: "🦊";
 }
-[data-theme="default"] body,
+body[data-theme="default"],
 [data-theme="default"] #app {
   background-color: #F0F8FF;
   background-image:
@@ -44,7 +44,7 @@
   --color-shadow: rgba(122, 175, 94, 0.18);
   --mascot: "🐻";
 }
-[data-theme="forest"] body,
+body[data-theme="forest"],
 [data-theme="forest"] #app {
   background-color: #F2F7EC;
   background-image:
@@ -66,7 +66,7 @@
   --color-shadow: rgba(91, 179, 204, 0.20);
   --mascot: "🐙";
 }
-[data-theme="ocean"] body,
+body[data-theme="ocean"],
 [data-theme="ocean"] #app {
   background-color: #EAF6FB;
   background-image:
@@ -88,7 +88,7 @@
   --color-shadow: rgba(224, 143, 192, 0.20);
   --mascot: "🦄";
 }
-[data-theme="candy"] body,
+body[data-theme="candy"],
 [data-theme="candy"] #app {
   background-color: #FBF0F6;
   background-image:
@@ -111,7 +111,7 @@
   --color-shadow: rgba(123, 137, 201, 0.20);
   --mascot: "🦉";
 }
-[data-theme="starry"] body,
+body[data-theme="starry"],
 [data-theme="starry"] #app {
   background-color: #EEF0FB;
   background-image:
@@ -133,7 +133,7 @@
   --color-shadow: rgba(232, 177, 75, 0.20);
   --mascot: "🐱";
 }
-[data-theme="school"] body,
+body[data-theme="school"],
 [data-theme="school"] #app {
   background-color: #FFF9EC;
   background-image:
@@ -155,7 +155,7 @@
   --color-shadow: rgba(245, 160, 107, 0.20);
   --mascot: "🦁";
 }
-[data-theme="sunset"] body,
+body[data-theme="sunset"],
 [data-theme="sunset"] #app {
   background-color: #FFF3EC;
   background-image:
@@ -177,7 +177,7 @@
   --color-shadow: rgba(156, 199, 107, 0.20);
   --mascot: "🐰";
 }
-[data-theme="meadow"] body,
+body[data-theme="meadow"],
 [data-theme="meadow"] #app {
   background-color: #F4FBE9;
   background-image:
@@ -190,7 +190,7 @@
    on body for the soft tint, but #app uses solid + image so it
    scrolls naturally inside the phone frame.
    ------------------------------------------------------------ */
-[data-theme] body {
+body[data-theme] {
   background-attachment: fixed;
 }
 [data-theme] #app {

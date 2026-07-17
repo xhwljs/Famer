@@ -60,7 +60,7 @@
         '<div class="stats-row">' +
           '<span class="stats-row-icon">⭐</span>' +
           '<span class="stats-row-label">总积分</span>' +
-          '<span class="stats-row-val">' + Math.floor(state.points) + '</span>' +
+          '<span class="stats-row-val">' + ((state.points % 1 === 0) ? state.points : state.points.toFixed(1)) + '</span>' +
         '</div>' +
         '<div class="stats-row">' +
           '<span class="stats-row-icon">🏅</span>' +

@@ -654,30 +654,32 @@
 .error-count-text { font-size: var(--fs-sm); color: var(--color-text-muted); }
 .error-toolbar-actions { display: inline-flex; gap: var(--space-sm); }
 .error-clear-btn {
-  padding: 6px 14px;
+  padding: var(--space-sm) var(--space-md);
+  min-height: 44px;
   border: 2px solid var(--color-danger);
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--color-danger);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
+  transition: transform var(--transition-fast);
 }
 .error-clear-btn:active { transform: scale(0.95); }
 .error-practice-btn {
-  padding: 6px 14px;
-  min-height: 36px;
+  padding: var(--space-sm) var(--space-md);
+  min-height: 44px;
   border: 2px solid var(--color-primary);
   border-radius: var(--radius-full);
   background: var(--color-primary);
   color: #fff;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 700;
   cursor: pointer;
   box-shadow: var(--shadow-clay-sm);
   transition: transform var(--transition-fast);
 }
-.error-practice-btn:active { transform: scale(0.95); }
+.error-practice-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 .error-card {
   padding: var(--space-md);
   background: var(--color-card);

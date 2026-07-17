@@ -366,10 +366,6 @@
   filter: grayscale(1);
   opacity: 0.6;
 }
-.badge-card.locked .badge-icon::after {
-  content: "🔒";
-  margin-left: -0.5em;
-}
 
 /* ---------- Theme store card（横向布局，对齐首页 .difficulty-card） ---------- */
 .theme-card {

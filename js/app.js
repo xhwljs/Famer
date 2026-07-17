@@ -28,6 +28,7 @@
     questionStartTime: 0,// 当前题目开始时间戳
     questionTimes: [],   // 每道题用时（秒）
     timerId: null,       // 计时器句柄
+    nextQTimer: null,    // 下一题延迟计时器句柄（退出时需清除，避免结算页自动弹出）
     isPractice: false    // 是否为错题练习模式（不触发解锁与连续通关）
   };
 
@@ -171,7 +172,11 @@
     var totalEl = $('home-total-questions');
     var streakEl = $('home-streak');
     var streakPill = $('home-streak-pill');
-    if (pointsEl) pointsEl.textContent = Math.floor(state.points);
+    if (pointsEl) {
+      // 统一积分格式：整数显示原值，小数显示 1 位（与主题商店/结算页一致）
+      var p = state.points;
+      pointsEl.textContent = (p % 1 === 0) ? p : p.toFixed(1);
+    }
     if (totalEl) totalEl.textContent = state.totalQuestions;
     // 徽章计数
     var badgeCount = state.badges ? state.badges.length : 0;
@@ -274,13 +279,19 @@
     // 初始化音效（首次用户交互后）
     try { global.Sound.init(); } catch (e) { /* 忽略 */ }
 
-    // 每日首次答题奖励（练习模式不触发）
+    // 清理上一组残留的计时器/状态，避免返回后旧定时器仍触发结算
+    stopTimer();
+    if (quizState.nextQTimer) {
+      clearTimeout(quizState.nextQTimer);
+      quizState.nextQTimer = null;
+    }
+
+    // 每日首次答题奖励（练习模式不触发）—— 延迟到 renderQuestion 之后再展示，
+    // 否则 renderQuestion 会立即清空 quiz-feedback，奖励文案根本看不到
+    var pendingDailyReward = false;
     if (!opts.isPractice) {
       try {
-        var claimed = global.Storage.claimDailyReward();
-        if (claimed) {
-          showDailyReward();
-        }
+        pendingDailyReward = !!global.Storage.claimDailyReward();
       } catch (e) { /* 忽略 */ }
     }
 
@@ -313,6 +324,8 @@
     // 启动本组计时器
     startTimer();
     renderQuestion();
+    // 渲染完题目后再展示每日奖励，避免被 renderQuestion 清空
+    if (pendingDailyReward) showDailyReward();
   }
 
   /**
@@ -611,9 +624,11 @@
       });
     }
 
-    // 延迟后进入下一题
+    // 延迟后进入下一题（存句柄，退出答题时需清除避免结算页自动弹出）
     var delay = isCorrect ? 1000 : 2000;
-    setTimeout(function () {
+    if (quizState.nextQTimer) clearTimeout(quizState.nextQTimer);
+    quizState.nextQTimer = setTimeout(function () {
+      quizState.nextQTimer = null;
       nextQuestion();
     }, delay);
   }
@@ -901,6 +916,12 @@
         // 确认退出
         if (global.confirm('确定要退出本次答题吗？')) {
           stopTimer();
+          // 清除"下一题"延迟定时器，避免返回后仍触发 finishQuiz 跳结算页
+          if (quizState.nextQTimer) {
+            clearTimeout(quizState.nextQTimer);
+            quizState.nextQTimer = null;
+          }
+          quizState.isAnswering = false;
           renderHome();
           navigateTo('home');
         }

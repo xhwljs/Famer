@@ -188,20 +188,12 @@
         card.className = 'badge-card' + (badge.unlocked ? ' unlocked' : ' locked');
         card.setAttribute('data-badge-id', badge.id);
 
-        // 徽章图标：已解锁显示真实图标，未解锁显示锁定占位
+        // 徽章图标：已解锁显示真实图标，未解锁显示锁定占位（单一锁标识，避免三重叠加）
         var iconChar = badge.unlocked ? badge.icon : '🔒';
         card.innerHTML =
           '<div class="badge-icon">' + iconChar + '</div>' +
           '<div class="badge-name">' + badge.name + '</div>' +
           '<div class="badge-desc">' + badge.description + '</div>';
-
-        // 锁定徽章覆盖一层半透明遮罩 + 锁图标，提示未解锁
-        if (!badge.unlocked) {
-          var overlay = document.createElement('div');
-          overlay.className = 'badge-lock-overlay';
-          overlay.innerHTML = '<span class="lock-icon">🔒</span>';
-          card.appendChild(overlay);
-        }
 
         container.appendChild(card);
       });

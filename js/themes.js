@@ -89,6 +89,8 @@
     var overlay = document.createElement('div');
     overlay.className = 'theme-confirm-overlay';
     var after = balance - theme.price;
+    // 统一余额格式：整数显示原值，小数显示 1 位
+    var fmtAfter = (after % 1 === 0) ? after : after.toFixed(1);
     overlay.innerHTML =
       '<div class="theme-confirm-modal">' +
         '<div class="tcm-mascot">' + theme.mascot + '</div>' +
@@ -97,7 +99,7 @@
         '<div class="tcm-price-row">' +
           '<span class="tcm-cost">- ' + theme.price + ' ⭐</span>' +
           '<span class="tcm-arrow">→</span>' +
-          '<span class="tcm-after' + (after < 0 ? ' negative' : '') + '">余额 ' + after + ' ⭐</span>' +
+          '<span class="tcm-after' + (after < 0 ? ' negative' : '') + '">余额 ' + fmtAfter + ' ⭐</span>' +
         '</div>' +
         '<div class="tcm-actions">' +
           '<button class="tcm-btn tcm-cancel" type="button">再想想</button>' +
@@ -248,12 +250,21 @@
       // 积分不足
       if (!Themes.canAfford(themeId)) return false;
 
+      // 先扣分
       try {
-        // 扣除积分（addPoints 支持负数）
         global.Storage.addPoints(-def.price);
-        // 解锁主题
-        global.Storage.unlockTheme(themeId);
       } catch (e) {
+        return false;
+      }
+      // 解锁主题；若失败（如 localStorage 写满静默失败）必须回滚扣分
+      var unlocked = false;
+      try {
+        unlocked = !!global.Storage.unlockTheme(themeId);
+      } catch (e) {
+        unlocked = false;
+      }
+      if (!unlocked) {
+        try { global.Storage.addPoints(def.price); } catch (e2) { /* 回滚也失败则忽略 */ }
         return false;
       }
       // 自动应用刚购买的主题
@@ -270,6 +281,13 @@
     render: function (container) {
       if (!container) return;
       container.innerHTML = '';
+
+      // 清理可能残留的主题预览背景（用户在预览激活时点了筛选/购买会触发重渲染）
+      var app = document.getElementById('app');
+      if (app) {
+        app.classList.remove('theme-preview-active');
+        app.style.removeProperty('--preview-bg');
+      }
 
       var current = Themes.getCurrent();
       var points = 0;
@@ -348,7 +366,11 @@
         if (isCurrent) a11yParts.push('当前使用中');
         else if (isUnlocked) a11yParts.push('已拥有，点击使用');
         else if (canBuy) a11yParts.push('消耗 ' + theme.price + ' 积分购买');
-        else a11yParts.push('还需 ' + (theme.price - Math.floor(points)) + ' 积分');
+        else {
+          // 差额向上取整，避免"差0⭐"但实际差0.5的误导
+          var deficit = Math.ceil(theme.price - points);
+          a11yParts.push('还需 ' + deficit + ' 积分');
+        }
         card.setAttribute('role', 'group');
         card.setAttribute('aria-label', a11yParts.join('，'));
 
@@ -373,7 +395,7 @@
           actionHtml = '<button class="theme-buy-btn" data-theme="' + theme.id + '" aria-label="购买' + theme.name + '主题，消耗' + theme.price + '积分">' +
                         theme.price + '⭐</button>';
         } else {
-          actionHtml = '<span class="theme-status locked">差 ' + (theme.price - Math.floor(points)) + '⭐</span>';
+          actionHtml = '<span class="theme-status locked">差 ' + Math.ceil(theme.price - points) + '⭐</span>';
         }
 
         // 横向卡片：缩略图(左) + 信息(中) + 操作(右)，对齐首页 .difficulty-card
@@ -445,13 +467,13 @@
           var def = getDefinition(id);
           if (!def) return;
           // 二次确认
-          showConfirmModal(def, Math.floor(points), function () {
+          showConfirmModal(def, points, function () {
             if (Themes.purchase(id)) {
               showToast('🎉 购买成功！「' + def.name + '」已解锁并应用', 'success');
               Themes.render(container);
             } else {
               safePlay('wrong');
-              showToast('❌ 购买失败，积分不足', 'warn');
+              showToast('❌ 购买未成功，请稍后再试', 'warn');
               Themes.render(container);
             }
           });
