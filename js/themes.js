@@ -108,19 +108,33 @@
     // 触发进场动画
     requestAnimationFrame(function () { overlay.classList.add('show'); });
 
+    var okBtn = overlay.querySelector('.tcm-ok');
+    var cancelBtn = overlay.querySelector('.tcm-cancel');
+    var closed = false;
     var close = function () {
+      if (closed) return;
+      closed = true;
       overlay.classList.remove('show');
       setTimeout(function () {
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
       }, 200);
     };
-    overlay.querySelector('.tcm-cancel').addEventListener('click', function () {
+    cancelBtn.addEventListener('click', function () {
       safePlay('click');
       close();
     });
-    overlay.querySelector('.tcm-ok').addEventListener('click', function () {
-      close();
-      if (typeof onConfirm === 'function') onConfirm();
+    // 防双击：确认后立即禁用按钮并显示加载态，避免重复扣分
+    okBtn.addEventListener('click', function () {
+      if (okBtn.disabled) return;
+      okBtn.disabled = true;
+      okBtn.classList.add('loading');
+      okBtn.textContent = '购买中…';
+      cancelBtn.disabled = true;
+      // 短暂延迟模拟异步反馈，再执行真实购买
+      setTimeout(function () {
+        close();
+        if (typeof onConfirm === 'function') onConfirm();
+      }, 260);
     });
     // 点击遮罩外部关闭
     overlay.addEventListener('click', function (e) {
@@ -290,6 +304,7 @@
         btn.type = 'button';
         btn.className = 'theme-filter-btn' + (currentFilter === f.id ? ' active' : '');
         btn.setAttribute('data-filter', f.id);
+        btn.setAttribute('aria-pressed', currentFilter === f.id ? 'true' : 'false');
         btn.textContent = f.label;
         btn.addEventListener('click', function () {
           safePlay('click');
@@ -316,6 +331,8 @@
         else if (currentFilter === 'buyable') match = (!isUnlocked && canBuy);
         else if (currentFilter === 'locked')  match = (!isUnlocked && !canBuy);
         if (!match) return;
+
+        var index = visibleCount;
         visibleCount++;
 
         var card = document.createElement('div');
@@ -324,6 +341,16 @@
           (isUnlocked ? ' unlocked' : ' locked') +
           (canBuy ? ' buyable' : '');
         card.setAttribute('data-theme-id', theme.id);
+        // stagger 进场动画延迟（CSS 读取 --card-index）
+        card.style.setProperty('--card-index', index);
+        // 可访问性：卡片整体语义标签
+        var a11yParts = [theme.name];
+        if (isCurrent) a11yParts.push('当前使用中');
+        else if (isUnlocked) a11yParts.push('已拥有，点击使用');
+        else if (canBuy) a11yParts.push('消耗 ' + theme.price + ' 积分购买');
+        else a11yParts.push('还需 ' + (theme.price - Math.floor(points)) + ' 积分');
+        card.setAttribute('role', 'group');
+        card.setAttribute('aria-label', a11yParts.join('，'));
 
         // 主题预览色块
         var previewHtml = theme.preview.map(function (c) {
@@ -341,9 +368,9 @@
         if (isCurrent) {
           actionHtml = '<span class="theme-status using">✓ 使用中</span>';
         } else if (isUnlocked) {
-          actionHtml = '<button class="theme-use-btn" data-theme="' + theme.id + '">点击使用</button>';
+          actionHtml = '<button class="theme-use-btn" data-theme="' + theme.id + '" aria-label="使用' + theme.name + '主题">点击使用</button>';
         } else if (canBuy) {
-          actionHtml = '<button class="theme-buy-btn" data-theme="' + theme.id + '">' +
+          actionHtml = '<button class="theme-buy-btn" data-theme="' + theme.id + '" aria-label="购买' + theme.name + '主题，消耗' + theme.price + '积分">' +
                         '购买 ' + theme.price + '⭐</button>';
         } else {
           actionHtml = '<span class="theme-status locked">还需 ' + (theme.price - Math.floor(points)) + '⭐</span>';
@@ -351,10 +378,10 @@
 
         card.innerHTML =
           badgeHtml +
-          '<div class="theme-mascot">' + theme.mascot + '</div>' +
+          '<div class="theme-mascot" aria-hidden="true">' + theme.mascot + '</div>' +
           '<div class="theme-name">' + theme.name + '</div>' +
           '<div class="theme-desc">' + (theme.desc || '') + '</div>' +
-          '<div class="theme-preview">' + previewHtml + '</div>' +
+          '<div class="theme-preview" aria-hidden="true">' + previewHtml + '</div>' +
           '<div class="theme-action">' + actionHtml + '</div>';
 
         grid.appendChild(card);
@@ -362,12 +389,33 @@
 
       container.appendChild(grid);
 
-      // 筛选无结果时显示空态
+      // 筛选无结果时显示空态 + 行动按钮（UX：空态需引导用户行动）
       if (visibleCount === 0) {
         var empty = document.createElement('div');
         empty.className = 'theme-empty';
-        empty.innerHTML = '<span class="theme-empty-icon">🔍</span><span>该分类下暂无主题</span>';
+        var isPositiveFilter = (currentFilter === 'owned' || currentFilter === 'buyable');
+        var emptyTip = isPositiveFilter
+          ? '还没有满足条件的主题，去做题赚积分解锁吧～'
+          : '该分类下暂无主题';
+        empty.innerHTML =
+          '<span class="theme-empty-icon">🔍</span>' +
+          '<span class="theme-empty-text">' + emptyTip + '</span>' +
+          '<button class="theme-empty-btn" type="button">去答题赚积分</button>';
         container.appendChild(empty);
+        var goBtn = empty.querySelector('.theme-empty-btn');
+        if (goBtn) {
+          goBtn.addEventListener('click', function () {
+            safePlay('click');
+            // 返回首页（与 App.navigateTo 同款实现，无需依赖未暴露的 API）
+            var pages = document.querySelectorAll('.page');
+            for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+            var home = document.getElementById('page-home');
+            if (home) {
+              home.classList.add('active');
+              home.scrollTop = 0;
+            }
+          });
+        }
       }
 
       // 绑定「点击使用」按钮

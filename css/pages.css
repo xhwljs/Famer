@@ -826,11 +826,7 @@
 .theme-balance-icon {
   font-size: 1.5rem;
   line-height: 1;
-  animation: starSpin 3s ease-in-out infinite;
-}
-@keyframes starSpin {
-  0%, 100% { transform: rotate(0) scale(1); }
-  50% { transform: rotate(15deg) scale(1.12); }
+  filter: drop-shadow(0 2px 3px rgba(255, 179, 71, 0.35));
 }
 .theme-balance-label {
   font-size: var(--fs-sm);
@@ -850,20 +846,25 @@
   color: var(--color-text-muted);
 }
 
-/* 筛选标签栏（复用 .tab-btn 视觉语言，与错题本一致） */
+/* 筛选标签栏（横向滚动，避免窄屏 5 个按钮挤文字；复用 .tab-btn 视觉语言） */
 .theme-filter-bar {
   display: flex;
   gap: var(--space-sm);
   padding: var(--space-xs) 0 var(--space-sm);
   margin-bottom: var(--space-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.theme-filter-bar::-webkit-scrollbar { display: none; }
 .theme-filter-btn {
-  flex: 1;
+  flex-shrink: 0;
   min-height: 44px;
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: var(--fs-sm);
+  white-space: nowrap;
   color: var(--color-text-muted);
   background: var(--color-card);
   border: var(--border-thick) solid var(--color-border);
@@ -873,7 +874,7 @@
               background var(--transition-fast),
               color var(--transition-fast);
 }
-.theme-filter-btn:active { transform: scale(0.95); }
+.theme-filter-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 .theme-filter-btn.active {
   color: #ffffff;
   background: var(--color-primary);
@@ -892,6 +893,22 @@
   text-align: center;
 }
 .theme-empty-icon { font-size: 2.5rem; opacity: 0.6; }
+.theme-empty-text { max-width: 260px; line-height: 1.5; font-size: var(--fs-sm); }
+.theme-empty-btn {
+  margin-top: var(--space-sm);
+  padding: 11px var(--space-lg);
+  min-height: 44px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: #fff;
+  background: var(--color-primary);
+  border: var(--border-thick) solid var(--color-primary);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-clay-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.theme-empty-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 
 .themes-grid-inner {
   display: grid;

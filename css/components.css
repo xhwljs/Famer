@@ -396,17 +396,41 @@
   border-color: var(--color-primary);
   box-shadow: var(--shadow-clay), 0 0 0 3px rgba(74, 144, 217, 0.25);
 }
+/* 可购买：静态 accent 边框高亮（不使用无限脉冲动画，避免装饰性动画干扰） */
 .theme-card.buyable {
   border-color: var(--color-accent);
-  animation: themeCardPulse 2.4s ease-in-out infinite;
-}
-@keyframes themeCardPulse {
-  0%, 100% { box-shadow: var(--shadow-clay-sm), 0 0 0 0 rgba(255, 107, 157, 0); }
-  50%      { box-shadow: var(--shadow-clay-sm), 0 0 0 4px rgba(255, 107, 157, 0.22); }
 }
 .theme-card.previewing {
   transform: translateY(-4px) scale(1.03);
   box-shadow: var(--shadow-clay-lg);
+}
+/* 卡片进场 stagger 动画（每张由 JS 设置 --card-index 延迟） */
+.theme-card {
+  animation: themeCardEnter 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 40ms);
+}
+@keyframes themeCardEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* 当前主题角标（吉祥物右上角小勾选） */
+.theme-card.current .theme-mascot::after {
+  content: "✓";
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--color-success);
+  border: 2px solid var(--color-card);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-clay-sm);
 }
 /* 主题预览：临时给 #app 叠加主色渐变（预览未购买主题配色） */
 #app.theme-preview-active::before {
@@ -434,6 +458,7 @@
 .theme-badge.owned { background: var(--bg-secondary); color: var(--color-primary); }
 /* 吉祥物 */
 .theme-mascot {
+  position: relative;
   font-size: 2.6rem;
   text-align: center;
   line-height: 1;
@@ -637,6 +662,12 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .tcm-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
+.tcm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-clay-sm);
+}
 .tcm-cancel {
   background: var(--color-card);
   color: var(--color-text-muted);
@@ -646,6 +677,15 @@
   color: #fff;
   border-color: var(--color-accent);
   box-shadow: var(--shadow-clay-sm);
+}
+/* 购买中加载态：脉冲透明度提示处理中 */
+.tcm-ok.loading {
+  opacity: 0.75;
+  animation: tcmLoading 1s ease-in-out infinite;
+}
+@keyframes tcmLoading {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 0.45; }
 }
 
 /* ---------- Error book item ---------- */
