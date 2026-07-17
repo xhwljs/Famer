@@ -140,8 +140,14 @@
       }
 
       var streakInfo = '';
-      if (isUnlocked && bestStreak > 0) {
-        streakInfo = ' · 最高连击 ' + bestStreak;
+      if (isUnlocked) {
+        var clearCount = global.Difficulty.getClearCount(level.id) || 0;
+        if (clearCount > 0) {
+          streakInfo = ' · 通关' + clearCount + '次';
+        }
+        if (bestStreak > 0) {
+          streakInfo += ' · 最高连击 ' + bestStreak;
+        }
       }
 
       card.innerHTML =
@@ -182,6 +188,14 @@
     // 初始化音效（首次用户交互后）
     try { global.Sound.init(); } catch (e) { /* 忽略 */ }
 
+    // 每日首次答题奖励
+    try {
+      var claimed = global.Storage.claimDailyReward();
+      if (claimed) {
+        showDailyReward();
+      }
+    } catch (e) { /* 忽略 */ }
+
     // 重置答题状态
     quizState.level = level;
     quizState.questions = global.QuestionGenerator.generate(level, 10);
@@ -191,8 +205,100 @@
     quizState.isAnswering = false;
     quizState.currentAnswer = '';
 
+    // 初始化进度小圆点
+    initProgressDots();
+
     navigateTo('quiz');
     renderQuestion();
+  }
+
+  /**
+   * 显示每日奖励提示
+   */
+  function showDailyReward() {
+    var el = $('quiz-feedback');
+    if (!el) return;
+    el.className = 'quiz-feedback daily-reward';
+    el.innerHTML = '🎁 每日首次答题奖励 +1⭐';
+    setTimeout(function () {
+      if (quizState.currentIndex === 0) {
+        el.innerHTML = '';
+        el.className = 'quiz-feedback';
+      }
+    }, 2500);
+  }
+
+  /**
+   * 初始化10个进度小圆点
+   */
+  function initProgressDots() {
+    var dotsEl = $('quiz-dots');
+    if (!dotsEl) return;
+    dotsEl.innerHTML = '';
+    for (var i = 0; i < 10; i++) {
+      var dot = document.createElement('span');
+      dot.className = 'quiz-dot';
+      dot.setAttribute('data-idx', i);
+      dotsEl.appendChild(dot);
+    }
+  }
+
+  /**
+   * 更新进度小圆点状态
+   * @param {number} currentIdx - 当前题号（0-9）
+   * @param {Array} results - 已答结果数组
+   */
+  function updateProgressDots(currentIdx, results) {
+    var dots = document.querySelectorAll('.quiz-dot');
+    dots.forEach(function (dot, i) {
+      dot.classList.remove('current', 'correct', 'wrong');
+      if (i < currentIdx) {
+        // 已答过的题
+        var r = results[i];
+        if (r) {
+          dot.classList.add(r.correct ? 'correct' : 'wrong');
+        }
+      } else if (i === currentIdx) {
+        dot.classList.add('current');
+      }
+    });
+  }
+
+  /**
+   * 显示题型标签
+   * @param {Object} q - 题目对象
+   */
+  function showTypeTag(q) {
+    var tagEl = $('quiz-type-tag');
+    if (!tagEl) return;
+    var label = '';
+    var icon = '';
+    if (q.type === 'basic') { label = '加减法'; icon = '➕'; }
+    else if (q.type === 'fillblank') { label = '填空题'; icon = '✏️'; }
+    else if (q.type === 'compare') { label = '比大小'; icon = '⚖️'; }
+    tagEl.innerHTML = icon + ' ' + label;
+  }
+
+  /**
+   * 显示连击里程碑特效
+   * @param {number} streak - 当前连击数
+   */
+  function showStreakMilestone(streak) {
+    var milestones = {
+      5: { text: '5连对！太棒了！', icon: '🔥' },
+      8: { text: '8连对！火力全开！', icon: '⚡' },
+      10: { text: '10连对！完美通关！', icon: '👑' }
+    };
+    if (!milestones[streak]) return;
+
+    var el = $('streak-milestone');
+    if (!el) return;
+    var m = milestones[streak];
+    el.innerHTML = '<div class="milestone-text">' + m.icon + ' ' + m.text + '</div>';
+    el.classList.add('show');
+    setTimeout(function () {
+      el.classList.remove('show');
+    }, 1800);
   }
 
   /**
@@ -207,6 +313,12 @@
     $('quiz-current').textContent = String(idx + 1);
     var progressPct = ((idx + 1) / 10) * 100;
     $('quiz-progress-fill').style.width = progressPct + '%';
+
+    // 更新进度小圆点
+    updateProgressDots(idx, quizState.results);
+
+    // 显示题型标签
+    showTypeTag(q);
 
     // 更新连击显示
     var streakEl = $('quiz-streak-display');
@@ -324,6 +436,8 @@
       playSound('correct');
       quizState.currentStreak++;
       showFeedback(true);
+      // 连击里程碑特效
+      showStreakMilestone(quizState.currentStreak);
     } else {
       playSound('wrong');
       quizState.currentStreak = 0;

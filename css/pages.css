@@ -786,3 +786,98 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ============================================================
+   答题进度小圆点
+   ============================================================ */
+.quiz-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: var(--space-xs) 0 var(--space-sm);
+  flex-wrap: wrap;
+}
+.quiz-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  border: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+.quiz-dot.current {
+  background: var(--color-primary);
+  transform: scale(1.3);
+  box-shadow: 0 0 6px var(--color-primary);
+}
+.quiz-dot.correct {
+  background: var(--color-success);
+}
+.quiz-dot.wrong {
+  background: var(--color-danger);
+}
+
+/* ============================================================
+   题型标签
+   ============================================================ */
+.quiz-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  padding: 4px 14px;
+  background: var(--color-card);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xs);
+  box-shadow: var(--shadow-clay-sm);
+}
+
+/* ============================================================
+   连击里程碑特效
+   ============================================================ */
+.streak-milestone {
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: 9000;
+  pointer-events: none;
+  transition: opacity 300ms ease-out, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.streak-milestone.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.milestone-text {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: clamp(1.8rem, 6vw, 2.8rem);
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(255, 107, 157, 0.4);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   每日奖励提示
+   ============================================================ */
+.quiz-feedback.daily-reward {
+  background: linear-gradient(135deg, #FFF9EC, #FFE9D6);
+  border: 2px solid var(--color-warning);
+  color: var(--color-secondary);
+  font-weight: 700;
+  animation: dailyRewardPop 400ms ease-out;
+}
+@keyframes dailyRewardPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}

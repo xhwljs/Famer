@@ -46,16 +46,17 @@
       totalQuestions: 0,
       totalCorrect: 0,
       difficulty: {
-        20:  { unlocked: true,  completed: false, bestStreak: 0 },
-        50:  { unlocked: false, completed: false, bestStreak: 0 },
-        100: { unlocked: false, completed: false, bestStreak: 0 }
+        20:  { unlocked: true,  completed: false, bestStreak: 0, clearCount: 0 },
+        50:  { unlocked: false, completed: false, bestStreak: 0, clearCount: 0 },
+        100: { unlocked: false, completed: false, bestStreak: 0, clearCount: 0 }
       },
       currentTheme: 'default',
       unlockedThemes: ['default'],
       badges: [],
       errorBook: { 20: [], 50: [], 100: [] },
       consecutiveClears: 0,
-      sessionHistory: []
+      sessionHistory: [],
+      lastDailyRewardDate: ''  // 每日首次答题奖励记录（格式 YYYY-MM-DD）
     };
   }
 
@@ -118,6 +119,7 @@
     if (!Array.isArray(state.badges)) state.badges = [];
     if (typeof state.consecutiveClears !== 'number') state.consecutiveClears = 0;
     if (!Array.isArray(state.sessionHistory)) state.sessionHistory = [];
+    if (typeof state.lastDailyRewardDate !== 'string') state.lastDailyRewardDate = '';
 
     // difficulty 各等级补全
     if (!state.difficulty) state.difficulty = defaults.difficulty;
@@ -129,6 +131,7 @@
         if (typeof d.unlocked !== 'boolean') d.unlocked = defaults.difficulty[lv].unlocked;
         if (typeof d.completed !== 'boolean') d.completed = defaults.difficulty[lv].completed;
         if (typeof d.bestStreak !== 'number') d.bestStreak = 0;
+        if (typeof d.clearCount !== 'number') d.clearCount = 0;  // 通关次数（向后兼容）
       }
     });
 
@@ -242,15 +245,46 @@
     },
 
     /**
-     * 标记难度等级为已通关
+     * 标记难度等级为已通关，并增加通关次数
      * @param {number} level - 难度等级
      */
     completeDifficulty: function (level) {
       var state = Storage.getState();
       if (state.difficulty[level]) {
         state.difficulty[level].completed = true;
+        state.difficulty[level].clearCount = (state.difficulty[level].clearCount || 0) + 1;
         Storage.saveState(state);
       }
+    },
+
+    /**
+     * 获取某难度的通关次数
+     * @param {number} level - 难度等级
+     * @returns {number}
+     */
+    getClearCount: function (level) {
+      var state = Storage.getState();
+      return (state.difficulty[level] && state.difficulty[level].clearCount) || 0;
+    },
+
+    /**
+     * 检查并领取每日首次答题奖励
+     * @returns {boolean} 是否领取成功（true=今天首次）
+     */
+    claimDailyReward: function () {
+      var state = Storage.getState();
+      var today = new Date();
+      var todayStr = today.getFullYear() + '-' +
+                     String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                     String(today.getDate()).padStart(2, '0');
+      if (state.lastDailyRewardDate === todayStr) {
+        return false; // 今天已领取过
+      }
+      state.lastDailyRewardDate = todayStr;
+      state.points += 1; // 每日首次答题额外+1积分
+      state.points = Math.round(state.points * 100) / 100;
+      Storage.saveState(state);
+      return true;
     },
 
     /**

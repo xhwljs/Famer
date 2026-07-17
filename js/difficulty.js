@@ -85,6 +85,15 @@
     },
 
     /**
+     * 获取某关卡的通关次数
+     * @param {number} level - 关卡 ID
+     * @returns {number}
+     */
+    getClearCount: function (level) {
+      return global.Storage.getClearCount(level);
+    },
+
+    /**
      * 获取下一关 ID（20→50→100，100 无下一关返回 null）
      * @param {number} level - 当前关卡 ID
      * @returns {number|null}
