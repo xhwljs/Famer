@@ -153,6 +153,38 @@
 }
 .streak-fire { font-size: 1.2rem; line-height: 1; }
 
+/* 顶栏右侧：计时器 + 连击 */
+.quiz-top-right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.quiz-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px var(--space-md);
+  background: var(--color-card);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-clay-sm);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  font-size: var(--fs-sm);
+}
+.quiz-timer .timer-icon { font-size: 1rem; line-height: 1; }
+.quiz-timer.warning {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  animation: timerPulse 1s ease-in-out infinite;
+}
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
 .quiz-progress-bar {
   width: 100%;
   height: 14px;

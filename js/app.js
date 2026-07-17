@@ -23,7 +23,11 @@
     currentIndex: 0,     // 当前题号（0-9）
     currentStreak: 0,    // 当前连对数
     isAnswering: false,  // 是否正在答题（防重复提交）
-    currentAnswer: ''    // 当前输入
+    currentAnswer: '',   // 当前输入
+    sessionStartTime: 0, // 本组答题开始时间戳
+    questionStartTime: 0,// 当前题目开始时间戳
+    questionTimes: [],   // 每道题用时（秒）
+    timerId: null        // 计时器句柄
   };
 
   // ==================== 工具函数 ====================
@@ -50,6 +54,67 @@
    * 获取 DOM 元素
    */
   function $(id) { return document.getElementById(id); }
+
+  // ==================== 计时器 ====================
+
+  /**
+   * 格式化秒数为 mm:ss
+   * @param {number} seconds
+   * @returns {string}
+   */
+  function formatTime(seconds) {
+    if (!seconds || seconds < 0) seconds = 0;
+    seconds = Math.floor(seconds);
+    var m = Math.floor(seconds / 60);
+    var s = seconds % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  /**
+   * 启动本组计时器（每秒刷新顶栏显示）
+   */
+  function startTimer() {
+    stopTimer();
+    quizState.sessionStartTime = Date.now();
+    quizState.questionStartTime = Date.now();
+    updateTimerDisplay();
+    quizState.timerId = setInterval(updateTimerDisplay, 1000);
+  }
+
+  /**
+   * 停止计时器
+   */
+  function stopTimer() {
+    if (quizState.timerId) {
+      clearInterval(quizState.timerId);
+      quizState.timerId = null;
+    }
+  }
+
+  /**
+   * 刷新顶栏计时器显示
+   */
+  function updateTimerDisplay() {
+    if (!quizState.sessionStartTime) return;
+    var elapsed = (Date.now() - quizState.sessionStartTime) / 1000;
+    var txt = $('quiz-timer-text');
+    var timer = $('quiz-timer');
+    if (txt) txt.textContent = formatTime(elapsed);
+    // 超过 120 秒进入提醒状态
+    if (timer) {
+      if (elapsed >= 120) timer.classList.add('warning');
+      else timer.classList.remove('warning');
+    }
+  }
+
+  /**
+   * 记录当前题目用时（秒）
+   */
+  function recordQuestionTime() {
+    if (!quizState.questionStartTime) return;
+    var t = Math.round((Date.now() - quizState.questionStartTime) / 1000);
+    quizState.questionTimes.push(t);
+  }
 
   // ==================== 页面路由 ====================
 
@@ -212,11 +277,14 @@
     quizState.currentStreak = 0;
     quizState.isAnswering = false;
     quizState.currentAnswer = '';
+    quizState.questionTimes = [];
 
     // 初始化进度小圆点
     initProgressDots();
 
     navigateTo('quiz');
+    // 启动本组计时器
+    startTimer();
     renderQuestion();
   }
 
@@ -317,6 +385,9 @@
     var q = quizState.questions[idx];
     if (!q) return;
 
+    // 重置本题起始时间（排除上一题反馈延迟）
+    quizState.questionStartTime = Date.now();
+
     // 更新进度
     $('quiz-current').textContent = String(idx + 1);
     var progressPct = ((idx + 1) / 10) * 100;
@@ -403,6 +474,8 @@
     quizState.isAnswering = true;
     // 禁用键盘防止重复提交
     global.Keyboard.disable();
+    // 记录本题用时
+    recordQuestionTime();
 
     var q = quizState.questions[quizState.currentIndex];
     var userAnswer, correctAnswer;
@@ -525,6 +598,12 @@
    * 完成一组答题 → 结算
    */
   function finishQuiz() {
+    // 停止计时器，汇总用时
+    stopTimer();
+    var totalTime = 0;
+    var questionTimes = quizState.questionTimes.slice();
+    questionTimes.forEach(function (t) { totalTime += t; });
+
     var results = quizState.results;
     var scoring = global.Scoring.calculate(results);
     var level = quizState.level;
@@ -591,6 +670,8 @@
       isClear: isClear,
       isNewUnlock: isNewUnlock,
       newBadges: newBadges || [],
+      totalTime: totalTime,
+      questionTimes: questionTimes,
       onRetry: function () {
         startQuiz(level);
       },
@@ -737,6 +818,7 @@
         playSound('click');
         // 确认退出
         if (global.confirm('确定要退出本次答题吗？')) {
+          stopTimer();
           renderHome();
           navigateTo('home');
         }

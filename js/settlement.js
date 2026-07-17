@@ -36,6 +36,31 @@
   }
 
   /**
+   * 格式化秒数为 mm:ss
+   * @param {number} seconds
+   * @returns {string}
+   */
+  function formatTime(seconds) {
+    if (!seconds || seconds < 0) seconds = 0;
+    seconds = Math.floor(seconds);
+    var m = Math.floor(seconds / 60);
+    var s = seconds % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  /**
+   * 题型文本映射
+   * @param {string} type
+   * @returns {string}
+   */
+  function typeLabel(type) {
+    if (type === 'basic') return '➕ 加减法';
+    if (type === 'fillblank') return '✏️ 填空题';
+    if (type === 'compare') return '⚖️ 比大小';
+    return '题目';
+  }
+
+  /**
    * 注入结算页所需的最小内联样式（保证在 CSS 未完成时也可用）
    */
   function injectStyles() {
@@ -115,7 +140,36 @@
       '@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1;}' +
         '100%{transform:translateY(105vh) rotate(720deg);opacity:0.4;}}' +
       '@keyframes settlePop{0%{transform:scale(0.6);opacity:0;}' +
-        '60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);}}';
+        '60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);}}' +
+      // 用时统计标签
+      '.settle-time-row{display:flex;gap:8px;margin-top:14px;}' +
+      '.settle-time-pill{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;' +
+        'padding:8px 6px;border-radius:14px;background:#F4F8FF;border:2px solid #D9E6F2;}' +
+      '.settle-time-val{font-size:1.1rem;font-weight:700;color:var(--color-primary,#4A90D9);' +
+        'font-family:var(--font-heading);font-variant-numeric:tabular-nums;}' +
+      '.settle-time-label{font-size:0.72rem;color:var(--color-text-muted,#8A8AA8);}' +
+      // 回顾筛选标签
+      '.settle-filter-bar{display:flex;gap:8px;margin:6px 0 12px;}' +
+      '.settle-filter-btn{flex:1;padding:8px 6px;border-radius:14px;border:2px solid var(--color-border,#D9E6F2);' +
+        'background:var(--color-card,#FFF);font-weight:700;font-size:0.85rem;color:var(--color-text-muted,#8A8AA8);' +
+        'transition:all 150ms ease-out;display:flex;align-items:center;justify-content:center;gap:4px;}' +
+      '.settle-filter-btn:active{transform:scale(0.96);}' +
+      '.settle-filter-btn.active{background:var(--color-primary,#4A90D9);color:#FFF;border-color:var(--color-primary-dark,#3A78B8);}' +
+      '.settle-filter-btn .filter-count{font-size:0.72rem;opacity:0.85;}' +
+      // 可展开的回顾项
+      '.settle-review-item{cursor:pointer;position:relative;}' +
+      '.settle-review-text{flex:1;min-width:0;word-break:break-word;}' +
+      '.settle-review-item .settle-review-toggle{margin-left:auto;font-size:0.9rem;color:var(--color-text-muted,#8A8AA8);' +
+        'transition:transform 200ms ease-out;flex-shrink:0;}' +
+      '.settle-review-item.expanded .settle-review-toggle{transform:rotate(180deg);}' +
+      '.settle-review-detail{max-height:0;overflow:hidden;transition:max-height 250ms ease-out,padding 200ms ease-out;' +
+        'padding:0 4px;font-size:0.82rem;color:var(--color-text-muted,#8A8AA8);}' +
+      '.settle-review-item.expanded .settle-review-detail{max-height:80px;padding-top:6px;}' +
+      '.settle-review-detail span{margin-right:12px;}' +
+      '.settle-review-item.hidden{display:none;}' +
+      // 空态
+      '.settle-review-empty{text-align:center;padding:24px 12px;color:var(--color-text-muted,#8A8AA8);' +
+        'font-size:0.9rem;background:var(--color-card,#FFF);border-radius:16px;}';
     document.head.appendChild(style);
     stylesInjected = true;
   }
@@ -186,26 +240,31 @@
     var maxStreak = scoring.maxStreak || 0;
     var isClear = data.isClear;
 
+    // 用时统计
+    var totalTime = data.totalTime || 0;
+    var avgTime = total > 0 ? Math.round(totalTime / total) : 0;
+
     var card = document.createElement('div');
     card.className = 'settle-stats-card';
+    // 正确数与准确率使用动画占位（实际数字由 animateCountUp 填充）
     card.innerHTML =
       '<div class="settle-main-stat">' +
-        '<div class="settle-correct-num">' + correctCount +
+        '<div class="settle-correct-num" id="settle-correct-num" data-target="' + correctCount + '">0' +
           '<span class="settle-total">/' + total + '</span>' +
         '</div>' +
-        '<div class="settle-accuracy-ring" style="--acc:' + accuracy + '">' +
-          '<span>' + accuracy + '%</span>' +
+        '<div class="settle-accuracy-ring" id="settle-accuracy-ring" style="--acc:0">' +
+          '<span id="settle-accuracy-text">0%</span>' +
         '</div>' +
       '</div>' +
       '<div class="settle-stats-row">' +
         '<div class="settle-stat">' +
           '<span class="settle-stat-icon">⭐</span>' +
-          '<span class="settle-stat-val">' + pointsDisplay + '</span>' +
+          '<span class="settle-stat-val" id="settle-points" data-target="' + pointsDisplay + '">0</span>' +
           '<span class="settle-stat-label">积分</span>' +
         '</div>' +
         '<div class="settle-stat">' +
           '<span class="settle-stat-icon">🔥</span>' +
-          '<span class="settle-stat-val">' + maxStreak + '</span>' +
+          '<span class="settle-stat-val" id="settle-streak" data-target="' + maxStreak + '">0</span>' +
           '<span class="settle-stat-label">最高连击</span>' +
         '</div>' +
         '<div class="settle-stat">' +
@@ -213,8 +272,78 @@
           '<span class="settle-stat-val">' + (isClear ? '通关' : '未过') + '</span>' +
           '<span class="settle-stat-label">状态</span>' +
         '</div>' +
+      '</div>' +
+      '<div class="settle-time-row">' +
+        '<div class="settle-time-pill">' +
+          '<span class="settle-time-val">⏱️ ' + formatTime(totalTime) + '</span>' +
+          '<span class="settle-time-label">总用时</span>' +
+        '</div>' +
+        '<div class="settle-time-pill">' +
+          '<span class="settle-time-val">📊 ' + avgTime + '秒</span>' +
+          '<span class="settle-time-label">平均每题</span>' +
+        '</div>' +
       '</div>';
     return card;
+  }
+
+  /**
+   * 数字滚动动画：从 0 平滑增长到目标值
+   * @param {HTMLElement} el - 目标元素（含 data-target）
+   * @param {number} duration - 动画时长（ms）
+   */
+  function animateCountUp(el, duration) {
+    if (!el) return;
+    var targetStr = el.getAttribute('data-target');
+    if (targetStr == null) return;
+    var target = parseFloat(targetStr);
+    if (isNaN(target) || target <= 0) {
+      el.firstChild ? (el.firstChild.nodeValue = targetStr) : (el.textContent = targetStr);
+      return;
+    }
+    var isFloat = (targetStr.indexOf('.') >= 0);
+    var start = 0;
+    var startTime = 0;
+    duration = duration || 800;
+
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      // easeOutCubic 缓动
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = start + (target - start) * eased;
+      var displayVal = isFloat ? current.toFixed(1) : Math.round(current);
+      // 正确数元素包含 <span class="settle-total"> 子节点，需更新首个文本节点
+      if (el.firstChild && el.firstChild.nodeType === 3) {
+        el.firstChild.nodeValue = displayVal;
+      } else {
+        el.textContent = displayVal;
+      }
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /**
+   * 准确率环动画：conic-gradient 从 0 增长到目标百分比
+   * @param {HTMLElement} ringEl
+   * @param {HTMLElement} textEl
+   * @param {number} target
+   * @param {number} duration
+   */
+  function animateAccuracyRing(ringEl, textEl, target, duration) {
+    if (!ringEl || !textEl) return;
+    var startTime = 0;
+    duration = duration || 900;
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(target * eased);
+      ringEl.style.setProperty('--acc', current);
+      textEl.textContent = current + '%';
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
   /**
@@ -257,25 +386,43 @@
   }
 
   /**
-   * 构建答题回顾列表
+   * 构建答题回顾列表（含筛选标签 + 可展开详情）
    * @param {Object} data
    * @returns {HTMLElement}
    */
   function buildReview(data) {
     var review = document.createElement('div');
     review.className = 'settle-review';
+
+    var results = data.results || [];
+    var questions = data.questions || [];
+    var questionTimes = data.questionTimes || [];
+    var correctCount = results.filter(function (r) { return r && r.correct; }).length;
+    var wrongCount = results.length - correctCount;
+
     review.innerHTML = '<div class="settle-section-title">📋 答题回顾</div>';
+
+    // 筛选标签栏
+    var filterBar = document.createElement('div');
+    filterBar.className = 'settle-filter-bar';
+    filterBar.innerHTML =
+      '<button class="settle-filter-btn active" data-filter="all">全部 ' +
+        '<span class="filter-count">(' + results.length + ')</span></button>' +
+      '<button class="settle-filter-btn" data-filter="correct">✓ 对题 ' +
+        '<span class="filter-count">(' + correctCount + ')</span></button>' +
+      '<button class="settle-filter-btn" data-filter="wrong">✗ 错题 ' +
+        '<span class="filter-count">(' + wrongCount + ')</span></button>';
+    review.appendChild(filterBar);
 
     var list = document.createElement('div');
     list.className = 'settle-review-list';
 
-    var results = data.results || [];
-    var questions = data.questions || [];
     results.forEach(function (r, idx) {
       var q = questions[idx] || {};
       var correct = !!(r && r.correct);
       var item = document.createElement('div');
       item.className = 'settle-review-item ' + (correct ? 'correct' : 'wrong');
+      item.setAttribute('data-result', correct ? 'correct' : 'wrong');
 
       // 将题目中的 □ 替换为正确答案，显示完整题目
       var fullQuestion = (q.display || '').replace(/\u25A1/g, r.correctAnswer || '?');
@@ -289,15 +436,68 @@
           '<span class="settle-review-ans ok">✓ ' + r.correctAnswer + '</span>';
       }
 
+      // 详情：题型 + 用时
+      var qTime = questionTimes[idx];
+      var timeText = (qTime != null) ? (qTime + '秒') : '—';
+      var detailHtml =
+        '<div class="settle-review-detail">' +
+          '<span>📌 ' + typeLabel(q.type) + '</span>' +
+          '<span>⏱️ 用时 ' + timeText + '</span>' +
+        '</div>';
+
       item.innerHTML =
         '<div class="settle-review-q">' +
           '<span class="settle-review-num">' + (idx + 1) + '</span>' +
           '<span class="settle-review-text">' + fullQuestion + '</span>' +
+          '<span class="settle-review-toggle">▼</span>' +
         '</div>' +
-        '<div class="settle-review-answers">' + answersHtml + '</div>';
+        '<div class="settle-review-answers">' + answersHtml + '</div>' +
+        detailHtml;
+
+      // 点击展开/收起详情
+      item.addEventListener('click', function () {
+        item.classList.toggle('expanded');
+      });
       list.appendChild(item);
     });
     review.appendChild(list);
+
+    // 空态占位（筛选无结果时显示）
+    var empty = document.createElement('div');
+    empty.className = 'settle-review-empty';
+    empty.id = 'settle-review-empty';
+    empty.style.display = 'none';
+    empty.textContent = '该筛选下没有题目～';
+    review.appendChild(empty);
+
+    // 筛选切换逻辑
+    filterBar.addEventListener('click', function (e) {
+      var btn = e.target.closest('.settle-filter-btn');
+      if (!btn) return;
+      safePlay('click');
+      var filter = btn.getAttribute('data-filter');
+      // 更新按钮 active 状态
+      var allBtns = filterBar.querySelectorAll('.settle-filter-btn');
+      allBtns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      // 过滤列表项
+      var items = list.querySelectorAll('.settle-review-item');
+      var visibleCount = 0;
+      items.forEach(function (it) {
+        var res = it.getAttribute('data-result');
+        var show = (filter === 'all') ||
+                   (filter === 'correct' && res === 'correct') ||
+                   (filter === 'wrong' && res === 'wrong');
+        if (show) {
+          it.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          it.classList.add('hidden');
+        }
+      });
+      empty.style.display = visibleCount === 0 ? 'block' : 'none';
+    });
+
     return review;
   }
 
@@ -389,6 +589,24 @@
           data.onHome();
         });
       }
+
+      // 触发统计数字滚动动画（延后一帧确保 DOM 已渲染）
+      setTimeout(function () {
+        var scoring = data.scoring || {};
+        var results = data.results || [];
+        var total = results.length || 10;
+        var correctCount = scoring.correctCount || 0;
+        var accuracy = total > 0 ? Math.round(correctCount / total * 100) : 0;
+        animateCountUp(container.querySelector('#settle-correct-num'), 900);
+        animateCountUp(container.querySelector('#settle-points'), 800);
+        animateCountUp(container.querySelector('#settle-streak'), 700);
+        animateAccuracyRing(
+          container.querySelector('#settle-accuracy-ring'),
+          container.querySelector('#settle-accuracy-text'),
+          accuracy,
+          1000
+        );
+      }, 80);
 
       // 滚动到顶部，确保用户从结算页顶部开始阅读
       try {

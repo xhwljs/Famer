@@ -152,6 +152,16 @@
   }
 
   /**
+   * 判断字符是否为比大小符号（全角 ＞ ＜ ＝ 或半角 > < =）
+   * @param {string} ch
+   * @returns {boolean}
+   */
+  function isSymbolChar(ch) {
+    return ch === '＞' || ch === '＜' || ch === '＝' ||
+           ch === '>' || ch === '<' || ch === '=';
+  }
+
+  /**
    * 处理按键动作：更新 currentInput 并触发回调
    * @param {string} label
    */
@@ -163,8 +173,24 @@
       // 确认：触发 onSubmit，不再修改输入
       if (callbacks.onSubmit) callbacks.onSubmit(currentInput);
       return;
+    } else if (activeType === 'symbol') {
+      // 符号键盘（比大小题）：只允许输入一个符号，新输入直接替换旧符号
+      currentInput = label;
+    } else if (isSymbolChar(label)) {
+      // 混合键盘中的符号：若已含符号则替换，避免多符号叠加
+      if (isSymbolChar(currentInput.slice(-1))) {
+        currentInput = currentInput.slice(0, -1) + label;
+      } else if (currentInput.indexOf('>') >= 0 || currentInput.indexOf('<') >= 0 ||
+                 currentInput.indexOf('=') >= 0 ||
+                 currentInput.indexOf('＞') >= 0 || currentInput.indexOf('＜') >= 0 ||
+                 currentInput.indexOf('＝') >= 0) {
+        // 已含符号，忽略本次输入
+        return;
+      } else {
+        currentInput += label;
+      }
     } else {
-      // 普通字符：追加
+      // 普通数字字符：追加
       currentInput += label;
     }
     // 通知调用方输入已变化
