@@ -72,10 +72,11 @@
   // ==================== 首页 ====================
 
   /**
-   * 渲染首页：更新统计 + 难度卡片
+   * 渲染首页：更新统计 + 今日进度 + 难度卡片
    */
   function renderHome() {
     updateHomeStats();
+    renderTodayProgress();
     renderDifficultyCards();
     // 更新吉祥物
     var themeDef = null;
@@ -107,6 +108,13 @@
     // 徽章计数
     var badgeCount = state.badges ? state.badges.length : 0;
     if (badgeEl) badgeEl.textContent = badgeCount;
+  }
+
+  /**
+   * 渲染今日学习进度卡片
+   */
+  function renderTodayProgress() {
+    global.HomePage.renderTodayProgress();
   }
 
   /**
@@ -483,11 +491,21 @@
     var fb = $('quiz-feedback');
     if (isCorrect) {
       fb.className = 'quiz-feedback correct';
-      var praises = ['答对了！', '真棒！', '太厉害了！', '继续加油！', '你真聪明！'];
+      var praises = [
+        '答对了！', '真棒！', '太厉害了！', '继续加油！', '你真聪明！',
+        '完美！', '好样的！', '了不起！', '继续保持！', '满分小能手！'
+      ];
       fb.innerHTML = '🎉 ' + praises[Math.floor(Math.random() * praises.length)];
+      // 答案框弹跳动画
+      var box = $('answer-box');
+      if (box) {
+        box.classList.add('answer-bounce');
+        setTimeout(function () { box.classList.remove('answer-bounce'); }, 500);
+      }
     } else {
       fb.className = 'quiz-feedback wrong';
-      fb.innerHTML = '💪 没关系，下次一定行！';
+      var encourages = ['没关系，下次一定行！', '别灰心，再试一次！', '加油，你能做到的！', '错了也没关系，继续努力！'];
+      fb.innerHTML = '💪 ' + encourages[Math.floor(Math.random() * encourages.length)];
     }
   }
 

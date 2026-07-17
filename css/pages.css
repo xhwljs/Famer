@@ -788,6 +788,66 @@
 }
 
 /* ============================================================
+   今日学习进度卡片
+   ============================================================ */
+.today-progress-card {
+  margin-bottom: var(--space-md);
+}
+.today-card-inner {
+  background: var(--color-card);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-clay-sm);
+  padding: var(--space-md) var(--space-lg);
+  overflow: hidden;
+}
+.today-card-inner.empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  justify-content: center;
+  background: linear-gradient(135deg, #FFF9EC, #FFF);
+  border-style: dashed;
+}
+.today-card-inner.empty .today-icon {
+  font-size: 1.8rem;
+}
+.today-card-inner.empty .today-text {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.today-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+.today-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--space-xs);
+}
+.today-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.today-stat-val {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+}
+.today-stat-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
    答题进度小圆点
    ============================================================ */
 .quiz-dots {
@@ -837,33 +897,34 @@
 }
 
 /* ============================================================
-   连击里程碑特效
+   连击里程碑特效（顶部横幅式，半透明不遮挡页面）
    ============================================================ */
 .streak-milestone {
   position: fixed;
-  top: 35%;
+  top: 8%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0);
+  transform: translate(-50%, -120%) scale(0.8);
   opacity: 0;
   z-index: 9000;
   pointer-events: none;
-  transition: opacity 300ms ease-out, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 400ms ease-out, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .streak-milestone.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.85;
+  transform: translate(-50%, 0) scale(1);
 }
 .milestone-text {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(1.8rem, 6vw, 2.8rem);
+  font-size: clamp(1.2rem, 4.5vw, 1.8rem);
   color: #fff;
   background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
-  padding: 16px 32px;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 24px rgba(255, 107, 157, 0.4);
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
   text-align: center;
   white-space: nowrap;
+  backdrop-filter: blur(4px);
 }
 
 /* ============================================================

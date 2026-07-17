@@ -134,6 +134,10 @@
       pressed = true;
       key.classList.add('pressed');
       safePlay('click');
+      // 移动端轻触震动反馈
+      if (global.navigator && typeof global.navigator.vibrate === 'function') {
+        global.navigator.vibrate(15);
+      }
       handleKeyAction(label);
       setTimeout(function () {
         key.classList.remove('pressed');
