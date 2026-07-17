@@ -236,6 +236,14 @@
 }
 .quiz-feedback.correct { color: var(--color-success); background: rgba(107, 203, 119, 0.12); }
 .quiz-feedback.wrong { color: var(--color-danger); background: rgba(255, 107, 107, 0.12); }
+/* 反馈区本题用时标签 */
+.quiz-feedback .feedback-time {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85em;
+  opacity: 0.85;
+  margin-left: var(--space-xs);
+}
 
 .keyboard-area {
   padding-top: var(--space-sm);
@@ -642,9 +650,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-sm);
   margin-bottom: var(--space-sm);
 }
 .error-count-text { font-size: var(--fs-sm); color: var(--color-text-muted); }
+.error-toolbar-actions { display: inline-flex; gap: var(--space-sm); }
 .error-clear-btn {
   padding: 6px 14px;
   border: 2px solid var(--color-danger);
@@ -656,6 +666,20 @@
   cursor: pointer;
 }
 .error-clear-btn:active { transform: scale(0.95); }
+.error-practice-btn {
+  padding: 6px 14px;
+  min-height: 36px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-clay-sm);
+  transition: transform var(--transition-fast);
+}
+.error-practice-btn:active { transform: scale(0.95); }
 .error-card {
   padding: var(--space-md);
   background: var(--color-card);

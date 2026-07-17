@@ -129,12 +129,15 @@
         return;
       }
 
-      // 顶部工具条：错题数 + 清空按钮
+      // 顶部工具条：错题数 + 重做错题 + 清空
       var toolbar = document.createElement('div');
       toolbar.className = 'error-toolbar';
       toolbar.innerHTML =
         '<span class="error-count-text">共 ' + errors.length + ' 道错题</span>' +
-        '<button class="error-clear-btn" data-level="' + lv + '">清空</button>';
+        '<div class="error-toolbar-actions">' +
+          '<button class="error-practice-btn" data-level="' + lv + '">🔁 重做错题</button>' +
+          '<button class="error-clear-btn" data-level="' + lv + '">清空</button>' +
+        '</div>';
       container.appendChild(toolbar);
 
       toolbar.querySelector('.error-clear-btn').addEventListener('click', function () {
@@ -145,6 +148,12 @@
           // 同步刷新 tab 上的计数
           var tabsEl = document.getElementById('error-book-tabs');
           if (tabsEl) ErrorBook.renderTabs(tabsEl, lv);
+        }
+      });
+
+      toolbar.querySelector('.error-practice-btn').addEventListener('click', function () {
+        if (global.App && typeof global.App.startErrorPractice === 'function') {
+          global.App.startErrorPractice(lv);
         }
       });
 

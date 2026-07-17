@@ -27,7 +27,8 @@
     sessionStartTime: 0, // 本组答题开始时间戳
     questionStartTime: 0,// 当前题目开始时间戳
     questionTimes: [],   // 每道题用时（秒）
-    timerId: null        // 计时器句柄
+    timerId: null,       // 计时器句柄
+    isPractice: false    // 是否为错题练习模式（不触发解锁与连续通关）
   };
 
   // ==================== 工具函数 ====================
@@ -256,28 +257,36 @@
   /**
    * 开始一组答题
    * @param {number} level - 难度等级
+   * @param {Object} [opts] - { questions: 自定义题目数组, isPractice: 是否练习模式 }
    */
-  function startQuiz(level) {
+  function startQuiz(level, opts) {
+    opts = opts || {};
     // 初始化音效（首次用户交互后）
     try { global.Sound.init(); } catch (e) { /* 忽略 */ }
 
-    // 每日首次答题奖励
-    try {
-      var claimed = global.Storage.claimDailyReward();
-      if (claimed) {
-        showDailyReward();
-      }
-    } catch (e) { /* 忽略 */ }
+    // 每日首次答题奖励（练习模式不触发）
+    if (!opts.isPractice) {
+      try {
+        var claimed = global.Storage.claimDailyReward();
+        if (claimed) {
+          showDailyReward();
+        }
+      } catch (e) { /* 忽略 */ }
+    }
 
     // 重置答题状态
     quizState.level = level;
-    quizState.questions = global.QuestionGenerator.generate(level, 10);
+    // 优先使用自定义题目（错题重练），否则生成新题
+    quizState.questions = (Array.isArray(opts.questions) && opts.questions.length > 0)
+      ? opts.questions
+      : global.QuestionGenerator.generate(level, 10);
     quizState.results = [];
     quizState.currentIndex = 0;
     quizState.currentStreak = 0;
     quizState.isAnswering = false;
     quizState.currentAnswer = '';
     quizState.questionTimes = [];
+    quizState.isPractice = !!opts.isPractice;
 
     // 初始化进度小圆点
     initProgressDots();
@@ -286,6 +295,32 @@
     // 启动本组计时器
     startTimer();
     renderQuestion();
+  }
+
+  /**
+   * 错题重练：从指定难度的错题本生成一组练习题
+   * @param {number} level - 难度等级
+   */
+  function startErrorPractice(level) {
+    var errors = global.ErrorBook.getByLevel(level) || [];
+    if (errors.length === 0) return;
+
+    // 将错题转换为可作答的题目对象
+    var pool = errors.map(function (err) {
+      var answerType = (err.type === 'compare') ? 'symbol' : 'number';
+      return {
+        display: err.display || '',
+        answer: String(err.correctAnswer),
+        answerType: answerType,
+        type: err.type || 'basic'
+      };
+    });
+
+    // 最多取 10 题，乱序
+    pool.sort(function () { return Math.random() - 0.5; });
+    if (pool.length > 10) pool = pool.slice(0, 10);
+
+    startQuiz(level, { questions: pool, isPractice: true });
   }
 
   /**
@@ -513,16 +548,17 @@
     }
 
     // 播放音效 + 反馈
+    var lastTime = quizState.questionTimes[quizState.questionTimes.length - 1] || 0;
     if (isCorrect) {
       playSound('correct');
       quizState.currentStreak++;
-      showFeedback(true);
+      showFeedback(true, lastTime);
       // 连击里程碑特效
       showStreakMilestone(quizState.currentStreak);
     } else {
       playSound('wrong');
       quizState.currentStreak = 0;
-      showFeedback(false);
+      showFeedback(false, lastTime);
     }
 
     // 记录到存储
@@ -560,15 +596,18 @@
   /**
    * 显示答题反馈
    */
-  function showFeedback(isCorrect) {
+  function showFeedback(isCorrect, usedTime) {
     var fb = $('quiz-feedback');
+    var timeTag = (usedTime != null && usedTime >= 0)
+      ? ' <span class="feedback-time">⏱️ ' + usedTime + '秒</span>'
+      : '';
     if (isCorrect) {
       fb.className = 'quiz-feedback correct';
       var praises = [
         '答对了！', '真棒！', '太厉害了！', '继续加油！', '你真聪明！',
         '完美！', '好样的！', '了不起！', '继续保持！', '满分小能手！'
       ];
-      fb.innerHTML = '🎉 ' + praises[Math.floor(Math.random() * praises.length)];
+      fb.innerHTML = '🎉 ' + praises[Math.floor(Math.random() * praises.length)] + timeTag;
       // 答案框弹跳动画
       var box = $('answer-box');
       if (box) {
@@ -578,7 +617,7 @@
     } else {
       fb.className = 'quiz-feedback wrong';
       var encourages = ['没关系，下次一定行！', '别灰心，再试一次！', '加油，你能做到的！', '错了也没关系，继续努力！'];
-      fb.innerHTML = '💪 ' + encourages[Math.floor(Math.random() * encourages.length)];
+      fb.innerHTML = '💪 ' + encourages[Math.floor(Math.random() * encourages.length)] + timeTag;
     }
   }
 
@@ -612,14 +651,15 @@
     // 更新最佳连胜
     global.Storage.updateBestStreak(level, scoring.maxStreak);
 
-    // 添加积分
+    // 添加积分（练习模式也计积分以激励）
     if (scoring.totalPoints > 0) {
       global.Storage.addPoints(scoring.totalPoints);
     }
 
-    // 判断是否新解锁下一关
+    // 判断是否新解锁下一关（练习模式不触发解锁与连续通关）
     var isNewUnlock = false;
-    if (isClear) {
+    var isPractice = quizState.isPractice;
+    if (isClear && !isPractice) {
       // 首次通关此难度
       var wasCompleted = global.Difficulty.isCompleted(level);
       if (!wasCompleted) {
@@ -634,7 +674,7 @@
       }
       // 连续通关计数
       global.Storage.incrementConsecutiveClears();
-    } else {
+    } else if (!isClear && !isPractice) {
       global.Storage.resetConsecutiveClears();
     }
 
@@ -672,8 +712,14 @@
       newBadges: newBadges || [],
       totalTime: totalTime,
       questionTimes: questionTimes,
+      isPractice: isPractice,
       onRetry: function () {
-        startQuiz(level);
+        // 练习模式重试：重新生成错题练习；普通模式：重新生成新题
+        if (isPractice) {
+          startErrorPractice(level);
+        } else {
+          startQuiz(level);
+        }
       },
       onHome: function () {
         renderHome();
@@ -881,6 +927,12 @@
     // 绑定事件
     bindEvents();
   }
+
+  // ==================== 对外暴露接口 ====================
+  // 供错题本等子页面调用入口
+  global.App = {
+    startErrorPractice: startErrorPractice
+  };
 
   // DOM 就绪后启动
   if (document.readyState === 'loading') {

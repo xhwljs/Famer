@@ -213,12 +213,15 @@
    */
   function buildBanner(data) {
     var isClear = data.isClear;
+    var isPractice = data.isPractice;
     var banner = document.createElement('div');
     banner.className = 'settle-banner ' + (isClear ? 'success' : 'normal');
+    var subPrefix = (data.level || '') + '以内 · ';
+    if (isPractice) subPrefix = '🔁 错题练习 · ' + subPrefix;
     banner.innerHTML =
       '<div class="settle-banner-emoji">' + (isClear ? '🎉' : '💪') + '</div>' +
       '<h2 class="settle-banner-title">' + (isClear ? '太棒了！' : '继续加油！') + '</h2>' +
-      '<p class="settle-banner-sub">' + (data.level || '') + '以内 · ' +
+      '<p class="settle-banner-sub">' + subPrefix +
         (isClear ? '全部通关！' : '再接再厉') + '</p>';
     return banner;
   }
@@ -511,7 +514,8 @@
     var actions = document.createElement('div');
     actions.className = 'settle-actions';
 
-    var html = '<button class="settle-btn primary" id="settle-retry">🔄 重新刷题</button>';
+    var retryLabel = data.isPractice ? '🔁 再练一组错题' : '🔄 重新刷题';
+    var html = '<button class="settle-btn primary" id="settle-retry">' + retryLabel + '</button>';
     if (hasErrors) {
       html += '<button class="settle-btn secondary" id="settle-errors">📕 查看错题</button>';
     }
