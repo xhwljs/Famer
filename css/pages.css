@@ -807,19 +807,9 @@
 }
 
 /* ============================================================
-   主题商店积分余额栏（基于 ui-ux-pro-max 设计系统）
-   配色：Learning blue + Play yellow + Fun pink（更鲜艳的儿童配色）
-   风格：Claymorphism 玩具货架式
+   主题商店 —— 与首页风格一致：全局设计令牌（无 scoped 变量）
    ============================================================ */
-#page-themes {
-  --ts-primary: #2563EB;    /* Learning blue */
-  --ts-primary-dark: #1D4ED8;
-  --ts-yellow: #F59E0B;     /* Play yellow */
-  --ts-pink: #EC4899;       /* Fun pink */
-  --ts-bg: #EFF6FF;
-  --ts-border: #E4ECFC;
-  --ts-shadow: rgba(37, 99, 235, 0.18);
-}
+/* 积分余额栏（与首页 today-card 内卡风格一致） */
 .theme-balance-bar {
   display: flex;
   align-items: center;
@@ -828,13 +818,14 @@
   gap: var(--space-sm);
   padding: var(--space-md) var(--space-lg);
   margin-bottom: var(--space-sm);
-  background: linear-gradient(135deg, #FFFFFF, var(--ts-bg));
-  border: 4px solid var(--ts-border);
+  background: var(--color-card);
+  border: var(--border-thick) solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 18px var(--ts-shadow), inset 0 -4px 8px rgba(37,99,235,0.06), inset 0 4px 8px rgba(255,255,255,0.9);
+  box-shadow: var(--shadow-clay-sm);
 }
 .theme-balance-icon {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
+  line-height: 1;
   animation: starSpin 3s ease-in-out infinite;
 }
 @keyframes starSpin {
@@ -843,69 +834,62 @@
 }
 .theme-balance-label {
   font-size: var(--fs-sm);
-  color: #475569;
+  color: var(--color-text-muted);
   font-weight: 600;
 }
 .theme-balance-val {
   font-family: var(--font-heading);
   font-weight: 800;
   font-size: var(--fs-xl);
-  background: linear-gradient(135deg, var(--ts-yellow), var(--ts-pink));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-primary);
 }
 .theme-balance-tip {
   flex-basis: 100%;
   text-align: center;
   font-size: var(--fs-xs);
-  color: #64748B;
-  opacity: 0.9;
+  color: var(--color-text-muted);
 }
 
-/* 筛选标签栏 */
+/* 筛选标签栏（复用 .tab-btn 视觉语言，与错题本一致） */
 .theme-filter-bar {
   display: flex;
-  gap: var(--space-xs);
-  overflow-x: auto;
+  gap: var(--space-sm);
   padding: var(--space-xs) 0 var(--space-sm);
   margin-bottom: var(--space-sm);
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
 }
-.theme-filter-bar::-webkit-scrollbar { display: none; }
 .theme-filter-btn {
-  flex-shrink: 0;
-  padding: 7px 16px;
-  min-height: 40px;
-  border: 3px solid var(--ts-border);
-  border-radius: var(--radius-full);
-  background: #FFFFFF;
-  color: #64748B;
+  flex: 1;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-heading);
+  font-weight: 600;
   font-size: var(--fs-sm);
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 0 3px 6px rgba(37,99,235,0.08);
-}
-.theme-filter-btn.active {
-  background: var(--ts-primary);
-  border-color: var(--ts-primary-dark);
-  color: #fff;
-  box-shadow: 0 5px 12px rgba(37,99,235,0.35), inset 0 -3px 6px rgba(29,78,216,0.2);
-  transform: translateY(-1px);
+  color: var(--color-text-muted);
+  background: var(--color-card);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-clay-sm);
+  transition: transform var(--transition-fast),
+              background var(--transition-fast),
+              color var(--transition-fast);
 }
 .theme-filter-btn:active { transform: scale(0.95); }
+.theme-filter-btn.active {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
 
-/* 空态 */
+/* 空态（与 error-book-empty 一致） */
 .theme-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-xl) var(--space-md);
-  color: #64748B;
-  font-size: var(--fs-sm);
+  padding: var(--space-xxl) var(--space-md);
+  color: var(--color-text-muted);
+  font-size: var(--fs-md);
+  text-align: center;
 }
 .theme-empty-icon { font-size: 2.5rem; opacity: 0.6; }
 

@@ -371,56 +371,42 @@
   margin-left: -0.5em;
 }
 
-/* ---------- Theme store card（玩具货架式 Claymorphism） ---------- */
+/* ---------- Theme store card（与首页/徽章卡风格一致：全局设计令牌） ---------- */
 .theme-card {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-md);
-  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%);
-  border: 4px solid var(--ts-border, #E4ECFC);
-  border-radius: 24px;
-  box-shadow:
-    0 10px 20px rgba(37, 99, 235, 0.14),
-    inset 0 -5px 10px rgba(37, 99, 235, 0.05),
-    inset 0 5px 10px rgba(255, 255, 255, 0.9);
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease;
+  text-align: center;
+  background: var(--color-card);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-clay-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .theme-card:active {
-  transform: scale(0.96) translateY(2px);
-  box-shadow:
-    0 4px 8px rgba(37, 99, 235, 0.10),
-    inset 0 -3px 6px rgba(37, 99, 235, 0.04);
+  transform: scale(0.97);
+  box-shadow: var(--shadow-press);
 }
 @media (hover: hover) {
-  .theme-card:hover {
-    transform: translateY(-6px);
-    box-shadow:
-      0 16px 28px rgba(37, 99, 235, 0.22),
-      inset 0 -5px 10px rgba(37, 99, 235, 0.05),
-      inset 0 5px 10px rgba(255, 255, 255, 0.9);
-  }
+  .theme-card:hover { box-shadow: var(--shadow-clay); }
 }
 .theme-card.current {
-  border-color: var(--ts-primary, #2563EB);
-  box-shadow:
-    0 0 0 3px var(--ts-primary, #2563EB),
-    0 10px 20px rgba(37, 99, 235, 0.20);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-clay), 0 0 0 3px rgba(74, 144, 217, 0.25);
 }
 .theme-card.buyable {
-  border-color: var(--ts-pink, #EC4899);
-  animation: themeCardPulse 2.2s ease-in-out infinite;
+  border-color: var(--color-accent);
+  animation: themeCardPulse 2.4s ease-in-out infinite;
 }
 @keyframes themeCardPulse {
-  0%, 100% { box-shadow: 0 10px 20px rgba(37, 99, 235, 0.14), 0 0 0 0 rgba(236, 72, 153, 0); }
-  50% { box-shadow: 0 10px 20px rgba(37, 99, 235, 0.14), 0 0 0 4px rgba(236, 72, 153, 0.30); }
+  0%, 100% { box-shadow: var(--shadow-clay-sm), 0 0 0 0 rgba(255, 107, 157, 0); }
+  50%      { box-shadow: var(--shadow-clay-sm), 0 0 0 4px rgba(255, 107, 157, 0.22); }
 }
 .theme-card.previewing {
-  transform: translateY(-8px) scale(1.04);
-  box-shadow:
-    0 20px 32px rgba(37, 99, 235, 0.30),
-    0 0 0 3px var(--ts-primary, #2563EB);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: var(--shadow-clay-lg);
 }
 /* 主题预览：临时给 #app 叠加主色渐变（预览未购买主题配色） */
 #app.theme-preview-active::before {
@@ -435,40 +421,39 @@
 /* 状态徽标 */
 .theme-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   padding: 3px 10px;
   border-radius: var(--radius-full);
   font-size: var(--fs-xs);
-  font-weight: 800;
+  font-weight: 700;
   z-index: 2;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.theme-badge.using { background: var(--ts-primary, #2563EB); color: #fff; }
-.theme-badge.free  { background: #FEF3C7; color: #92400E; }
-.theme-badge.owned { background: #DBEAFE; color: #1E40AF; }
-/* 吉祥物（玩具货架上的玩偶） */
+.theme-badge.using { background: var(--color-primary); color: #fff; }
+.theme-badge.free  { background: var(--color-warning); color: #8A6A00; }
+.theme-badge.owned { background: var(--bg-secondary); color: var(--color-primary); }
+/* 吉祥物 */
 .theme-mascot {
   font-size: 2.6rem;
   text-align: center;
   line-height: 1;
   cursor: pointer;
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
   -webkit-user-select: none;
-  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 4px rgba(58, 58, 92, 0.15));
+  transition: transform var(--transition-fast);
 }
 @media (hover: hover) {
-  .theme-mascot:hover { transform: scale(1.18) rotate(-8deg) translateY(-2px); }
+  .theme-mascot:hover { transform: scale(1.15) rotate(-6deg); }
 }
 .theme-card .theme-preview {
   display: flex;
   gap: 4px;
-  height: 56px;
-  border-radius: 14px;
+  height: 48px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  border: 3px solid #FFFFFF;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(0,0,0,0.04);
+  border: var(--border-thick) solid var(--color-card);
+  box-shadow: var(--shadow-clay-sm);
 }
 .theme-card .theme-preview span {
   flex: 1;
@@ -479,17 +464,14 @@
 }
 .theme-card .theme-name {
   font-family: var(--font-heading);
-  font-weight: 800;
+  font-weight: 700;
   font-size: var(--fs-md);
   text-align: center;
-  background: linear-gradient(135deg, var(--ts-primary, #2563EB), var(--ts-pink, #EC4899));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text);
 }
 .theme-card .theme-desc {
   font-size: var(--fs-xs);
-  color: #64748B;
+  color: var(--color-text-muted);
   text-align: center;
   line-height: 1.4;
   min-height: 2.6em;
@@ -503,48 +485,49 @@
   display: block;
   text-align: center;
   padding: 10px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
-  color: var(--ts-primary-dark, #1D4ED8);
-  font-weight: 800;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
   font-size: var(--fs-sm);
-  box-shadow: inset 0 -3px 6px rgba(37,99,235,0.1);
 }
 .theme-status.locked {
   display: block;
   text-align: center;
   padding: 10px;
-  border-radius: 14px;
-  background: #F1F5F9;
-  color: #64748B;
-  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--color-text-muted);
+  font-weight: 600;
   font-size: var(--fs-xs);
 }
 .theme-use-btn, .theme-buy-btn {
   width: 100%;
   padding: 11px;
   min-height: 44px;
-  border: 3px solid transparent;
-  border-radius: 14px;
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
   font-size: var(--fs-sm);
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 150ms ease;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .theme-use-btn {
-  background: #FFFFFF;
-  color: var(--ts-primary, #2563EB);
-  border-color: var(--ts-primary, #2563EB);
-  box-shadow: 0 4px 8px rgba(37,99,235,0.15), inset 0 -3px 6px rgba(37,99,235,0.06);
+  background: var(--color-card);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-clay-sm);
 }
-.theme-use-btn:active { transform: scale(0.95); }
+.theme-use-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 .theme-buy-btn {
-  background: linear-gradient(135deg, var(--ts-pink, #EC4899), #DB2777);
+  background: var(--color-accent);
   color: #fff;
-  border-color: #BE185D;
-  box-shadow: 0 6px 12px rgba(236,72,153,0.35), inset 0 -3px 6px rgba(190,24,93,0.25);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-clay-sm);
 }
-.theme-buy-btn:active { transform: scale(0.95); }
+.theme-buy-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 
 /* ---------- Toast 提示 ---------- */
 .theme-toast {
@@ -556,12 +539,12 @@
   max-width: 88%;
   padding: 13px 22px;
   border-radius: var(--radius-md);
-  background: #1E293B;
+  background: var(--color-text);
   color: #fff;
   font-size: var(--fs-sm);
   font-weight: 700;
   text-align: center;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+  box-shadow: var(--shadow-clay-lg);
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -570,14 +553,10 @@
   opacity: 1;
   transform: translate(-50%, 0);
 }
-.theme-toast.success {
-  background: linear-gradient(135deg, #10B981, #059669);
-}
-.theme-toast.warn {
-  background: linear-gradient(135deg, #EF4444, #DC2626);
-}
+.theme-toast.success { background: var(--color-success); }
+.theme-toast.warn    { background: var(--color-danger); }
 
-/* ---------- 购买确认模态框 ---------- */
+/* ---------- 购买确认模态框（与全局 .modal/.overlay 一致） ---------- */
 .theme-confirm-overlay {
   position: fixed;
   inset: 0;
@@ -589,15 +568,19 @@
   background: rgba(0,0,0,0);
   transition: background 200ms ease;
 }
-.theme-confirm-overlay.show { background: rgba(15, 23, 42, 0.55); }
+.theme-confirm-overlay.show {
+  background: rgba(58, 58, 92, 0.35);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
 .theme-confirm-modal {
   width: 100%;
   max-width: 340px;
-  padding: var(--space-lg);
-  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%);
-  border: 4px solid var(--ts-border, #E4ECFC);
-  border-radius: 28px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 -5px 10px rgba(37,99,235,0.05);
+  padding: var(--space-xl);
+  background: var(--color-card);
+  border: var(--border-chunky) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-clay-lg);
   text-align: center;
   transform: scale(0.8);
   opacity: 0;
@@ -610,21 +593,18 @@
 .tcm-mascot {
   font-size: 3.2rem;
   line-height: 1;
-  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 4px rgba(58, 58, 92, 0.15));
 }
 .tcm-title {
   font-family: var(--font-heading);
   font-weight: 800;
   font-size: var(--fs-lg);
-  background: linear-gradient(135deg, var(--ts-primary, #2563EB), var(--ts-pink, #EC4899));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text);
   margin-top: var(--space-xs);
 }
 .tcm-desc {
   font-size: var(--fs-sm);
-  color: #64748B;
+  color: var(--color-text-muted);
   margin-top: var(--space-xs);
   line-height: 1.4;
 }
@@ -635,37 +615,37 @@
   gap: var(--space-sm);
   margin: var(--space-md) 0;
   padding: var(--space-sm) var(--space-md);
-  background: #F8FAFF;
-  border: 2px solid var(--ts-border, #E4ECFC);
-  border-radius: 14px;
+  background: var(--bg-secondary);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
-.tcm-cost { color: #DC2626; font-weight: 800; font-size: var(--fs-md); }
-.tcm-arrow { color: #94A3B8; }
-.tcm-after { color: #059669; font-weight: 800; font-size: var(--fs-md); }
-.tcm-after.negative { color: #DC2626; }
+.tcm-cost { color: var(--color-danger); font-weight: 800; font-size: var(--fs-md); }
+.tcm-arrow { color: var(--color-text-muted); }
+.tcm-after { color: var(--color-success); font-weight: 800; font-size: var(--fs-md); }
+.tcm-after.negative { color: var(--color-danger); }
 .tcm-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); }
 .tcm-btn {
   flex: 1;
   padding: 13px;
   min-height: 48px;
-  border: 3px solid transparent;
-  border-radius: 14px;
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
   font-size: var(--fs-sm);
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 150ms ease;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.tcm-btn:active { transform: scale(0.95); }
+.tcm-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 .tcm-cancel {
-  background: #FFFFFF;
-  color: #64748B;
-  border-color: var(--ts-border, #E4ECFC);
+  background: var(--color-card);
+  color: var(--color-text-muted);
 }
 .tcm-ok {
-  background: linear-gradient(135deg, var(--ts-pink, #EC4899), #DB2777);
+  background: var(--color-accent);
   color: #fff;
-  border-color: #BE185D;
-  box-shadow: 0 6px 12px rgba(236,72,153,0.35);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-clay-sm);
 }
 
 /* ---------- Error book item ---------- */
