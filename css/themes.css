@@ -1,0 +1,212 @@
+/* ============================================================
+   themes.css — 8 Light-Mode Claymorphism Themes
+   All themes are LIGHT mode (no dark backgrounds).
+   Apply via: <body data-theme="default"> or #app[data-theme="..."]
+   Colors are soft, low-saturation, eye-friendly for children.
+   ============================================================ */
+
+/* Shared: each theme tints the body background gradient + #app bg.
+   --mascot holds the theme's mascot emoji (used by JS to update #home-mascot). */
+
+/* ------------------------------------------------------------
+   1. default — Soft Sky (FREE)
+   ------------------------------------------------------------ */
+[data-theme="default"] {
+  --bg-primary: #F0F8FF;
+  --bg-secondary: #E6F1FB;
+  --color-primary: #4A90D9;
+  --color-secondary: #FFB347;
+  --color-accent: #FF6B9D;
+  --color-card: #FFFFFF;
+  --color-border: #D9E6F2;
+  --color-shadow: rgba(74, 144, 217, 0.18);
+  --mascot: "🦊";
+}
+[data-theme="default"] body,
+[data-theme="default"] #app {
+  background-color: #F0F8FF;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(255, 179, 71, 0.10), transparent 38%),
+    radial-gradient(circle at 85% 88%, rgba(255, 107, 157, 0.10), transparent 40%);
+}
+
+/* ------------------------------------------------------------
+   2. forest — Forest Friends (100 pts)
+   ------------------------------------------------------------ */
+[data-theme="forest"] {
+  --bg-primary: #F2F7EC;
+  --bg-secondary: #E4EFD8;
+  --color-primary: #7AAF5E;
+  --color-secondary: #B08968;
+  --color-accent: #E8A87C;
+  --color-card: #FBFDF7;
+  --color-border: #D6E4C5;
+  --color-shadow: rgba(122, 175, 94, 0.18);
+  --mascot: "🐻";
+}
+[data-theme="forest"] body,
+[data-theme="forest"] #app {
+  background-color: #F2F7EC;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(176, 137, 104, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(232, 168, 124, 0.12), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   3. ocean — Ocean World (150 pts)
+   ------------------------------------------------------------ */
+[data-theme="ocean"] {
+  --bg-primary: #EAF6FB;
+  --bg-secondary: #D8EEF7;
+  --color-primary: #5BB3CC;
+  --color-secondary: #7AB8D6;
+  --color-accent: #FF9EAA;
+  --color-card: #FFFFFF;
+  --color-border: #C7E4EE;
+  --color-shadow: rgba(91, 179, 204, 0.20);
+  --mascot: "🐙";
+}
+[data-theme="ocean"] body,
+[data-theme="ocean"] #app {
+  background-color: #EAF6FB;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(122, 184, 214, 0.14), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(255, 158, 170, 0.12), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   4. candy — Candy Land (200 pts)
+   ------------------------------------------------------------ */
+[data-theme="candy"] {
+  --bg-primary: #FBF0F6;
+  --bg-secondary: #F7E2EE;
+  --color-primary: #E08FC0;
+  --color-secondary: #B5A8E0;
+  --color-accent: #F5A3C7;
+  --color-card: #FFFFFF;
+  --color-border: #ECD0E0;
+  --color-shadow: rgba(224, 143, 192, 0.20);
+  --mascot: "🦄";
+}
+[data-theme="candy"] body,
+[data-theme="candy"] #app {
+  background-color: #FBF0F6;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(181, 168, 224, 0.16), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(245, 163, 199, 0.14), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   5. starry — Starry Night (250 pts)
+   LIGHT interpretation: soft periwinkle + gold + lavender (no dark bg)
+   ------------------------------------------------------------ */
+[data-theme="starry"] {
+  --bg-primary: #EEF0FB;
+  --bg-secondary: #E0E4F5;
+  --color-primary: #7B89C9;
+  --color-secondary: #E6C76B;
+  --color-accent: #A78BD9;
+  --color-card: #FFFFFF;
+  --color-border: #D2D6EE;
+  --color-shadow: rgba(123, 137, 201, 0.20);
+  --mascot: "🦉";
+}
+[data-theme="starry"] body,
+[data-theme="starry"] #app {
+  background-color: #EEF0FB;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(230, 199, 107, 0.16), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(167, 139, 217, 0.14), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   6. school — School Days (180 pts)
+   ------------------------------------------------------------ */
+[data-theme="school"] {
+  --bg-primary: #FFF9EC;
+  --bg-secondary: #FBEFCF;
+  --color-primary: #E8B14B;
+  --color-secondary: #E07A5F;
+  --color-accent: #7AAF5E;
+  --color-card: #FFFFFF;
+  --color-border: #F0DFB8;
+  --color-shadow: rgba(232, 177, 75, 0.20);
+  --mascot: "🐱";
+}
+[data-theme="school"] body,
+[data-theme="school"] #app {
+  background-color: #FFF9EC;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(224, 122, 95, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(122, 175, 94, 0.12), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   7. sunset — Sunset Glow (220 pts)
+   ------------------------------------------------------------ */
+[data-theme="sunset"] {
+  --bg-primary: #FFF3EC;
+  --bg-secondary: #FDE6D8;
+  --color-primary: #F5A06B;
+  --color-secondary: #FF8C94;
+  --color-accent: #C98BB0;
+  --color-card: #FFFFFF;
+  --color-border: #F2D6C4;
+  --color-shadow: rgba(245, 160, 107, 0.20);
+  --mascot: "🦁";
+}
+[data-theme="sunset"] body,
+[data-theme="sunset"] #app {
+  background-color: #FFF3EC;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(255, 140, 148, 0.14), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(201, 139, 176, 0.14), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   8. meadow — Spring Meadow (120 pts)
+   ------------------------------------------------------------ */
+[data-theme="meadow"] {
+  --bg-primary: #F4FBE9;
+  --bg-secondary: #E8F5D4;
+  --color-primary: #9CC76B;
+  --color-secondary: #F0D858;
+  --color-accent: #A8D8B9;
+  --color-card: #FFFFFF;
+  --color-border: #D8E9B8;
+  --color-shadow: rgba(156, 199, 107, 0.20);
+  --mascot: "🐰";
+}
+[data-theme="meadow"] body,
+[data-theme="meadow"] #app {
+  background-color: #F4FBE9;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(240, 216, 88, 0.16), transparent 40%),
+    radial-gradient(circle at 85% 88%, rgba(168, 216, 185, 0.16), transparent 42%);
+}
+
+/* ------------------------------------------------------------
+   Theme application helper — keep #app background-attachment fixed
+   on body for the soft tint, but #app uses solid + image so it
+   scrolls naturally inside the phone frame.
+   ------------------------------------------------------------ */
+[data-theme] body {
+  background-attachment: fixed;
+}
+[data-theme] #app {
+  background-attachment: scroll;
+}
+
+/* ------------------------------------------------------------
+   Default fallback: if no data-theme is set, treat as "default".
+   ------------------------------------------------------------ */
+body:not([data-theme]) #app,
+#app:not([data-theme]) {
+  /* inherits :root tokens; nothing to override */
+}
+
+/* ------------------------------------------------------------
+   Theme preview swatches (used by .theme-card in themes store).
+   Each theme exposes a 3-color preview via its tokens automatically;
+   .theme-card previews read --color-primary/secondary/accent.
+   ------------------------------------------------------------ */
