@@ -50,6 +50,7 @@
   var currentInput = '';
   var callbacks = { onKey: null, onSubmit: null };
   var activeType = 'number';
+  var isDisabled = false;  // 键盘是否禁用（答题判分后禁用防止重复提交）
   // 内联样式是否已注入（保证组件在 CSS 缺失时也能呈现基本可用外观）
   var stylesInjected = false;
 
@@ -120,6 +121,9 @@
     var handlePress = function (e) {
       if (e) e.preventDefault();
       if (pressed) return; // 防止 touchstart + mousedown 重复
+      if (isDisabled) return; // 键盘禁用时不响应
+      // 确认键在无输入时不响应
+      if (label === '✓' && currentInput.length === 0) return;
       pressed = true;
       key.classList.add('pressed');
       safePlay('click');
@@ -187,6 +191,7 @@
         onSubmit: typeof options.onSubmit === 'function' ? options.onSubmit : null
       };
       currentInput = '';
+      isDisabled = false;
 
       var kb = document.createElement('div');
       kb.className = 'keyboard keyboard-' + activeType;
@@ -244,6 +249,31 @@
     clear: function () {
       currentInput = '';
       if (callbacks.onKey) callbacks.onKey(currentInput);
+    },
+
+    /**
+     * 禁用键盘（答题判分后调用，防止重复提交）
+     */
+    disable: function () {
+      isDisabled = true;
+      var container = document.querySelector('.keyboard');
+      if (container) container.classList.add('kb-disabled');
+    },
+
+    /**
+     * 启用键盘（下一题时调用）
+     */
+    enable: function () {
+      isDisabled = false;
+      var container = document.querySelector('.keyboard');
+      if (container) container.classList.remove('kb-disabled');
+    },
+
+    /**
+     * 检查键盘是否禁用
+     */
+    isDisabled: function () {
+      return isDisabled;
     }
   };
 

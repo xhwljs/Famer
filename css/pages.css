@@ -447,6 +447,7 @@
    ============================================================ */
 .quiz-question .q-text {
   display: inline;
+  white-space: pre;  /* 保留 display 字符串中的空格，确保数字与运算符间距 */
 }
 .correct-answer-hint {
   margin-top: var(--space-md);
@@ -672,4 +673,79 @@
   .stats-overview-val { font-size: 2.5rem; }
   .stats-row { font-size: var(--fs-md); }
   .stats-diff-row { font-size: var(--fs-md); }
+}
+
+/* ============================================================
+   音效开关按钮
+   ============================================================ */
+.sound-toggle {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 44px;
+  height: 44px;
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-card);
+  box-shadow: var(--shadow-clay-sm);
+  font-size: 1.3rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: transform var(--transition-fast);
+}
+.sound-toggle:active { transform: scale(0.9); }
+
+/* ============================================================
+   键盘禁用状态
+   ============================================================ */
+.keyboard.kb-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ============================================================
+   数据重置卡片
+   ============================================================ */
+.stats-reset-card {
+  text-align: center;
+  margin-top: var(--space-lg);
+}
+.reset-warning {
+  margin-top: var(--space-sm);
+  font-size: var(--fs-xs);
+  color: var(--color-danger);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   结算页确保可滚动
+   ============================================================ */
+#page-settlement .settlement-container {
+  padding-bottom: var(--space-xxl);
+}
+
+/* ============================================================
+   难度卡片锁图标样式
+   ============================================================ */
+.difficulty-card.locked .dc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-full);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.difficulty-card.locked .dc-badge::before {
+  content: '🔒';
+}
+.difficulty-card.completed .dc-badge {
+  background: var(--color-success);
+  color: #fff;
 }

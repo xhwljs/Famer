@@ -24,13 +24,20 @@
 
   var Sound = {
     _ctx: null,        // AudioContext 实例
-    _enabled: true,    // 是否启用声音
+    _enabled: true,    // 是否启用声音（从 localStorage 读取初始值）
     _masterGain: null, // 主音量控制节点（所有声音经此输出）
 
     /**
      * 初始化 AudioContext（必须在用户交互后调用，否则浏览器会挂起）
      */
     init: function () {
+      // 首次初始化时从 localStorage 读取音效开关状态
+      if (Sound._enabled === true && !Sound._ctx) {
+        try {
+          var saved = localStorage.getItem('mathWorld_soundEnabled');
+          if (saved === 'false') Sound._enabled = false;
+        } catch (e) { /* 忽略 */ }
+      }
       if (Sound._ctx) {
         // 已创建过：若被浏览器挂起则恢复
         if (Sound._ctx.state === 'suspended') {
@@ -52,11 +59,14 @@
     },
 
     /**
-     * 启用/禁用声音
+     * 启用/禁用声音（同步持久化到 localStorage）
      * @param {boolean} bool
      */
     setEnabled: function (bool) {
       Sound._enabled = !!bool;
+      try {
+        localStorage.setItem('mathWorld_soundEnabled', String(Sound._enabled));
+      } catch (e) { /* 忽略 */ }
     },
 
     /**
