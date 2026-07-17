@@ -181,6 +181,8 @@
     var correctCount = scoring.correctCount || 0;
     var accuracy = total > 0 ? Math.round(correctCount / total * 100) : 0;
     var points = scoring.totalPoints || 0;
+    // 积分格式化：整数直接显示，小数保留1位
+    var pointsDisplay = (points % 1 === 0) ? points : points.toFixed(1);
     var maxStreak = scoring.maxStreak || 0;
     var isClear = data.isClear;
 
@@ -198,7 +200,7 @@
       '<div class="settle-stats-row">' +
         '<div class="settle-stat">' +
           '<span class="settle-stat-icon">⭐</span>' +
-          '<span class="settle-stat-val">' + points + '</span>' +
+          '<span class="settle-stat-val">' + pointsDisplay + '</span>' +
           '<span class="settle-stat-label">积分</span>' +
         '</div>' +
         '<div class="settle-stat">' +
@@ -275,6 +277,9 @@
       var item = document.createElement('div');
       item.className = 'settle-review-item ' + (correct ? 'correct' : 'wrong');
 
+      // 将题目中的 □ 替换为正确答案，显示完整题目
+      var fullQuestion = (q.display || '').replace(/\u25A1/g, r.correctAnswer || '?');
+
       var answersHtml;
       if (correct) {
         answersHtml = '<span class="settle-review-ans ok">✓ ' + r.userAnswer + '</span>';
@@ -287,7 +292,7 @@
       item.innerHTML =
         '<div class="settle-review-q">' +
           '<span class="settle-review-num">' + (idx + 1) + '</span>' +
-          '<span class="settle-review-text">' + (q.display || '') + '</span>' +
+          '<span class="settle-review-text">' + fullQuestion + '</span>' +
         '</div>' +
         '<div class="settle-review-answers">' + answersHtml + '</div>';
       list.appendChild(item);

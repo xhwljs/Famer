@@ -163,8 +163,11 @@
         var timeStr = (d.getMonth() + 1) + '/' + d.getDate() + ' ' +
                       d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
 
+        // 将题目中的 □ 替换为正确答案，显示完整题目
+        var fullQuestion = (err.display || '').replace(/\u25A1/g, err.correctAnswer || '?');
+
         card.innerHTML =
-          '<div class="error-question">' + err.display + '</div>' +
+          '<div class="error-question">' + fullQuestion + '</div>' +
           '<div class="error-answers">' +
             '<div class="error-wrong">' +
               '<span class="error-label">你的答案</span>' +

@@ -169,6 +169,19 @@
         points = (s && s.points) || 0;
       } catch (e) { /* 默认 0 */ }
 
+      // 顶部积分余额栏
+      var balanceBar = document.createElement('div');
+      balanceBar.className = 'theme-balance-bar';
+      var pointsDisplay = (points % 1 === 0) ? points : points.toFixed(1);
+      balanceBar.innerHTML =
+        '<span class="theme-balance-icon">⭐</span>' +
+        '<span class="theme-balance-label">我的积分</span>' +
+        '<span class="theme-balance-val">' + pointsDisplay + '</span>';
+      container.appendChild(balanceBar);
+
+      var grid = document.createElement('div');
+      grid.className = 'themes-grid-inner';
+
       DEFINITIONS.forEach(function (theme) {
         var card = document.createElement('div');
         var isCurrent = (theme.id === current);
@@ -204,8 +217,10 @@
           '<div class="theme-preview">' + previewHtml + '</div>' +
           '<div class="theme-action">' + actionHtml + '</div>';
 
-        container.appendChild(card);
+        grid.appendChild(card);
       });
+
+      container.appendChild(grid);
 
       // 绑定「点击使用」按钮
       var useBtns = container.querySelectorAll('.theme-use-btn');

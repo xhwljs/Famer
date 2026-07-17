@@ -93,7 +93,10 @@
       '.kb-key.kb-special{background:var(--color-primary,#4A90D9);color:#FFFFFF;border-color:var(--color-primary-dark,#3A78B8);}' +
       '.kb-key.kb-confirm{background:var(--color-success,#6BCB77);color:#FFFFFF;border-color:#4FA958;}' +
       '.kb-key.pressed{transform:scale(0.9);box-shadow:0 2px 5px rgba(58,58,92,0.18),inset 0 2px 6px rgba(58,58,92,0.12);}' +
-      '.kb-symbol .kb-key{font-size:clamp(1.8rem,7vw,2.4rem);min-height:72px;}';
+      '.kb-key.kb-shake{animation:kbShake 300ms ease-out;}' +
+      '@keyframes kbShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}' +
+      '.kb-symbol .kb-key{font-size:clamp(1.8rem,7vw,2.4rem);min-height:72px;}' +
+      '.keyboard.kb-disabled{opacity:0.5;pointer-events:none;}';
     document.head.appendChild(style);
     stylesInjected = true;
   }
@@ -122,8 +125,12 @@
       if (e) e.preventDefault();
       if (pressed) return; // 防止 touchstart + mousedown 重复
       if (isDisabled) return; // 键盘禁用时不响应
-      // 确认键在无输入时不响应
-      if (label === '✓' && currentInput.length === 0) return;
+      // 确认键在无输入时震动提示但不响应
+      if (label === '✓' && currentInput.length === 0) {
+        key.classList.add('kb-shake');
+        setTimeout(function () { key.classList.remove('kb-shake'); }, 300);
+        return;
+      }
       pressed = true;
       key.classList.add('pressed');
       safePlay('click');

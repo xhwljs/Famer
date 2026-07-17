@@ -749,3 +749,40 @@
   background: var(--color-success);
   color: #fff;
 }
+
+/* ============================================================
+   主题商店积分余额栏
+   ============================================================ */
+.theme-balance-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  background: var(--color-card);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-clay-sm);
+}
+.theme-balance-icon { font-size: 1.5rem; }
+.theme-balance-label {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+.theme-balance-val {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--fs-xl);
+  color: var(--color-secondary);
+}
+.themes-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+@media (min-width: 768px) {
+  .themes-grid-inner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
