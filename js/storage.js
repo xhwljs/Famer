@@ -56,7 +56,10 @@
       errorBook: { 20: [], 50: [], 100: [] },
       consecutiveClears: 0,
       sessionHistory: [],
-      lastDailyRewardDate: ''  // 每日首次答题奖励记录（格式 YYYY-MM-DD）
+      lastDailyRewardDate: '',  // 每日首次答题奖励记录（格式 YYYY-MM-DD）
+      studyStreak: 0,           // 连续学习天数
+      lastStudyDate: '',        // 最近一次学习日期（格式 YYYY-MM-DD）
+      bestStudyStreak: 0        // 历史最长连续学习天数
     };
   }
 
@@ -120,6 +123,9 @@
     if (typeof state.consecutiveClears !== 'number') state.consecutiveClears = 0;
     if (!Array.isArray(state.sessionHistory)) state.sessionHistory = [];
     if (typeof state.lastDailyRewardDate !== 'string') state.lastDailyRewardDate = '';
+    if (typeof state.studyStreak !== 'number') state.studyStreak = 0;
+    if (typeof state.lastStudyDate !== 'string') state.lastStudyDate = '';
+    if (typeof state.bestStudyStreak !== 'number') state.bestStudyStreak = 0;
 
     // difficulty 各等级补全
     if (!state.difficulty) state.difficulty = defaults.difficulty;
@@ -406,6 +412,57 @@
         state.sessionHistory = state.sessionHistory.slice(-MAX_SESSION_HISTORY);
       }
       Storage.saveState(state);
+    },
+
+    /**
+     * 获取今日日期字符串（YYYY-MM-DD）
+     * @returns {string}
+     */
+    getTodayStr: function () {
+      var d = new Date();
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
+    },
+
+    /**
+     * 获取昨天日期字符串（YYYY-MM-DD）
+     * @returns {string}
+     */
+    getYesterdayStr: function () {
+      var d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
+    },
+
+    /**
+     * 更新连续学习天数：每日首次答题时调用
+     * - 今天已记录则不重复
+     * - 昨天有学习记录则 +1
+     * - 否则重置为 1
+     * - 同步刷新历史最长记录
+     * @returns {number} 当前的连续学习天数（0 表示今日已记录未更新）
+     */
+    updateStudyStreak: function () {
+      var state = Storage.getState();
+      var today = Storage.getTodayStr();
+      if (state.lastStudyDate === today) {
+        return 0; // 今日已记录
+      }
+      var yesterday = Storage.getYesterdayStr();
+      if (state.lastStudyDate === yesterday) {
+        state.studyStreak += 1;
+      } else {
+        state.studyStreak = 1;
+      }
+      state.lastStudyDate = today;
+      if (state.studyStreak > state.bestStudyStreak) {
+        state.bestStudyStreak = state.studyStreak;
+      }
+      Storage.saveState(state);
+      return state.studyStreak;
     },
 
     /**

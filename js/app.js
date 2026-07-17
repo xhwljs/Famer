@@ -288,6 +288,14 @@
     quizState.questionTimes = [];
     quizState.isPractice = !!opts.isPractice;
 
+    // 更新连续学习天数（每日首次答题）
+    try {
+      var newStreak = global.Storage.updateStudyStreak();
+      if (newStreak > 0) {
+        showStudyStreakToast(newStreak);
+      }
+    } catch (e) { /* 忽略 */ }
+
     // 初始化进度小圆点
     initProgressDots();
 
