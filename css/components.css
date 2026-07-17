@@ -124,6 +124,19 @@
   color: var(--color-text-muted);
   font-size: var(--fs-xs);
 }
+/* 连续学习天数胶囊：默认灰显，今日已学习时点亮为火焰橙 */
+.stat-pill-streak { opacity: 0.55; transition: opacity var(--transition-fast); }
+.stat-pill-streak.active {
+  opacity: 1;
+  border-color: #F59E0B;
+  background: linear-gradient(135deg, #FFF7E6, #FFE9C7);
+}
+.stat-pill-streak.active .stat-icon { animation: flamePulse 1.4s ease-in-out infinite; }
+.stat-pill-streak.active .stat-value { color: #E8590C; }
+@keyframes flamePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
 
 /* ---------- Bottom navigation button ---------- */
 .nav-btn {

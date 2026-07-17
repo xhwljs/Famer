@@ -55,9 +55,29 @@
       }
 
       var accuracy = todayTotal > 0 ? Math.round(todayCorrect / todayTotal * 100) : 0;
+      // 连续学习天数与历史最长
+      var streak = state.studyStreak || 0;
+      var bestStreak = state.bestStudyStreak || 0;
+      // 连胜奖励提示：3/7/14/30 天为里程碑
+      var milestoneTips = {
+        3: '再坚持 1 天解锁连胜奖励！',
+        7: '🎉 7天连胜达成，真棒！',
+        14: '🎊 14天连胜，学霸就是你！',
+        30: '👑 30天连胜，数学小达人！'
+      };
+      var streakHint = milestoneTips[streak] || '';
+      var streakBadge =
+        '<div class="today-streak-badge' + (streak > 0 ? ' active' : '') + '">' +
+          '<span class="streak-flame">🔥</span>' +
+          '<span class="streak-num">' + streak + '</span>' +
+          '<span class="streak-unit">天连胜</span>' +
+          (bestStreak > streak ? '<span class="streak-best">（最佳' + bestStreak + '天）</span>' : '') +
+        '</div>';
       container.innerHTML =
         '<div class="today-card-inner">' +
           '<div class="today-title">📊 今日学习</div>' +
+          streakBadge +
+          (streakHint ? '<div class="today-streak-hint">' + streakHint + '</div>' : '') +
           '<div class="today-stats">' +
             '<div class="today-stat"><span class="today-stat-val">' + todaySessions + '</span><span class="today-stat-label">组数</span></div>' +
             '<div class="today-stat"><span class="today-stat-val">' + todayCorrect + '</span><span class="today-stat-label">答对</span></div>' +

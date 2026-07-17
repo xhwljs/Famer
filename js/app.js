@@ -169,11 +169,21 @@
     var pointsEl = $('home-points');
     var badgeEl = $('home-badge-count');
     var totalEl = $('home-total-questions');
+    var streakEl = $('home-streak');
+    var streakPill = $('home-streak-pill');
     if (pointsEl) pointsEl.textContent = Math.floor(state.points);
     if (totalEl) totalEl.textContent = state.totalQuestions;
     // 徽章计数
     var badgeCount = state.badges ? state.badges.length : 0;
     if (badgeEl) badgeEl.textContent = badgeCount;
+    // 连续学习天数
+    var streak = state.studyStreak || 0;
+    if (streakEl) streakEl.textContent = streak;
+    if (streakPill) {
+      // 今日已学习则高亮，否则灰显
+      var todayStudied = state.lastStudyDate === global.Storage.getTodayStr();
+      streakPill.classList.toggle('active', todayStudied && streak > 0);
+    }
   }
 
   /**
@@ -345,6 +355,24 @@
         el.className = 'quiz-feedback';
       }
     }, 2500);
+  }
+
+  /**
+   * 显示连续学习天数提示（每日首次答题时）
+   * 复用 streak-milestone 横幅样式，透明不遮挡
+   * @param {number} streak - 当前连续学习天数
+   */
+  function showStudyStreakToast(streak) {
+    var el = $('streak-milestone');
+    if (!el) return;
+    var msg = streak === 1
+      ? '📖 今天第一次学习，开启连胜！'
+      : '📖 连续学习 ' + streak + ' 天，保持下去！';
+    el.innerHTML = '<div class="milestone-text">' + msg + '</div>';
+    el.classList.add('show');
+    setTimeout(function () {
+      el.classList.remove('show');
+    }, 1800);
   }
 
   /**
