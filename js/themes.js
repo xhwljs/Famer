@@ -352,36 +352,41 @@
         card.setAttribute('role', 'group');
         card.setAttribute('aria-label', a11yParts.join('，'));
 
-        // 主题预览色块
-        var previewHtml = theme.preview.map(function (c) {
-          return '<span class="theme-preview-color" style="background:' + c + '"></span>';
+        // 配色预览：融入左侧缩略图（吉祥物 + 下方3色点）
+        var dotsHtml = theme.preview.map(function (c) {
+          return '<span style="background:' + c + '"></span>';
         }).join('');
 
-        // 状态徽标
+        // 状态徽标（右上角）
         var badgeHtml = '';
         if (isCurrent) badgeHtml = '<span class="theme-badge using">使用中</span>';
         else if (theme.price === 0) badgeHtml = '<span class="theme-badge free">免费</span>';
         else if (isUnlocked) badgeHtml = '<span class="theme-badge owned">已拥有</span>';
 
-        // 状态区域：使用中 / 点击使用 / 购买按钮 / 积分不足提示
+        // 操作区：使用中 / 点击使用 / 购买按钮 / 积分不足
         var actionHtml = '';
         if (isCurrent) {
           actionHtml = '<span class="theme-status using">✓ 使用中</span>';
         } else if (isUnlocked) {
-          actionHtml = '<button class="theme-use-btn" data-theme="' + theme.id + '" aria-label="使用' + theme.name + '主题">点击使用</button>';
+          actionHtml = '<button class="theme-use-btn" data-theme="' + theme.id + '" aria-label="使用' + theme.name + '主题">使用</button>';
         } else if (canBuy) {
           actionHtml = '<button class="theme-buy-btn" data-theme="' + theme.id + '" aria-label="购买' + theme.name + '主题，消耗' + theme.price + '积分">' +
-                        '购买 ' + theme.price + '⭐</button>';
+                        theme.price + '⭐</button>';
         } else {
-          actionHtml = '<span class="theme-status locked">还需 ' + (theme.price - Math.floor(points)) + '⭐</span>';
+          actionHtml = '<span class="theme-status locked">差 ' + (theme.price - Math.floor(points)) + '⭐</span>';
         }
 
+        // 横向卡片：缩略图(左) + 信息(中) + 操作(右)，对齐首页 .difficulty-card
         card.innerHTML =
           badgeHtml +
-          '<div class="theme-mascot" aria-hidden="true">' + theme.mascot + '</div>' +
-          '<div class="theme-name">' + theme.name + '</div>' +
-          '<div class="theme-desc">' + (theme.desc || '') + '</div>' +
-          '<div class="theme-preview" aria-hidden="true">' + previewHtml + '</div>' +
+          '<div class="theme-thumb" aria-hidden="true">' +
+            '<div class="theme-mascot">' + theme.mascot + '</div>' +
+            '<div class="theme-dots">' + dotsHtml + '</div>' +
+          '</div>' +
+          '<div class="theme-info">' +
+            '<div class="theme-name">' + theme.name + '</div>' +
+            '<div class="theme-desc">' + (theme.desc || '') + '</div>' +
+          '</div>' +
           '<div class="theme-action">' + actionHtml + '</div>';
 
         grid.appendChild(card);
@@ -485,18 +490,17 @@
             app.classList.remove('theme-preview-active');
           }
         };
-        // 桌面端：鼠标悬停吉祥物预览
-        var mascotEl = card.querySelector('.theme-mascot');
-        if (mascotEl) {
-          mascotEl.addEventListener('mouseenter', applyPreview);
-          mascotEl.addEventListener('mouseleave', removePreview);
-          // 移动端：触摸预览
-          mascotEl.addEventListener('touchstart', function (ev) {
+        // 桌面端：鼠标悬停缩略图预览；移动端：触摸预览（用整个 thumb 作为触控区，≥44pt）
+        var thumbEl = card.querySelector('.theme-thumb');
+        if (thumbEl) {
+          thumbEl.addEventListener('mouseenter', applyPreview);
+          thumbEl.addEventListener('mouseleave', removePreview);
+          thumbEl.addEventListener('touchstart', function (ev) {
             ev.preventDefault();
             applyPreview();
           }, { passive: false });
-          mascotEl.addEventListener('touchend', removePreview);
-          mascotEl.addEventListener('touchcancel', removePreview);
+          thumbEl.addEventListener('touchend', removePreview);
+          thumbEl.addEventListener('touchcancel', removePreview);
         }
       });
     }

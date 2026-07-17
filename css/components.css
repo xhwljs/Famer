@@ -371,22 +371,28 @@
   margin-left: -0.5em;
 }
 
-/* ---------- Theme store card（与首页/徽章卡风格一致：全局设计令牌） ---------- */
+/* ---------- Theme store card（横向布局，对齐首页 .difficulty-card） ---------- */
 .theme-card {
   position: relative;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
+  align-items: center;
+  gap: var(--space-md);
   padding: var(--space-md);
-  text-align: center;
   background: var(--color-card);
   border: var(--border-thick) solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-clay-sm);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  /* stagger 进场动画（每张由 JS 设置 --card-index 延迟） */
+  animation: themeCardEnter 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 40ms);
+}
+@keyframes themeCardEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .theme-card:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
   box-shadow: var(--shadow-press);
 }
 @media (hover: hover) {
@@ -396,25 +402,50 @@
   border-color: var(--color-primary);
   box-shadow: var(--shadow-clay), 0 0 0 3px rgba(74, 144, 217, 0.25);
 }
-/* 可购买：静态 accent 边框高亮（不使用无限脉冲动画，避免装饰性动画干扰） */
-.theme-card.buyable {
-  border-color: var(--color-accent);
-}
+.theme-card.buyable { border-color: var(--color-accent); }
 .theme-card.previewing {
-  transform: translateY(-4px) scale(1.03);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-clay-lg);
 }
-/* 卡片进场 stagger 动画（每张由 JS 设置 --card-index 延迟） */
-.theme-card {
-  animation: themeCardEnter 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  animation-delay: calc(var(--card-index, 0) * 40ms);
+/* 主题预览：临时给 #app 叠加主色渐变（预览未购买主题配色） */
+#app.theme-preview-active::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--preview-bg, transparent);
+  transition: background 200ms ease;
 }
-@keyframes themeCardEnter {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+
+/* 左侧缩略图：吉祥物 + 下方3色点（配色预览融入，触控区≥64px） */
+.theme-thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform var(--transition-fast);
 }
-/* 当前主题角标（吉祥物右上角小勾选） */
-.theme-card.current .theme-mascot::after {
+@media (hover: hover) {
+  .theme-thumb:hover { transform: scale(1.06); }
+}
+.theme-mascot {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(58, 58, 92, 0.15));
+}
+/* 当前主题缩略图右上角小勾选 */
+.theme-card.current .theme-thumb::after {
   content: "✓";
   position: absolute;
   top: -6px;
@@ -432,85 +463,56 @@
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-clay-sm);
 }
-/* 主题预览：临时给 #app 叠加主色渐变（预览未购买主题配色） */
-#app.theme-preview-active::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: var(--preview-bg, transparent);
-  transition: background 200ms ease;
-}
-/* 状态徽标 */
-.theme-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  z-index: 2;
-}
-.theme-badge.using { background: var(--color-primary); color: #fff; }
-.theme-badge.free  { background: var(--color-warning); color: #8A6A00; }
-.theme-badge.owned { background: var(--bg-secondary); color: var(--color-primary); }
-/* 吉祥物 */
-.theme-mascot {
-  position: relative;
-  font-size: 2.6rem;
-  text-align: center;
-  line-height: 1;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  filter: drop-shadow(0 2px 4px rgba(58, 58, 92, 0.15));
-  transition: transform var(--transition-fast);
-}
-@media (hover: hover) {
-  .theme-mascot:hover { transform: scale(1.15) rotate(-6deg); }
-}
-.theme-card .theme-preview {
+.theme-dots {
   display: flex;
-  gap: 4px;
-  height: 48px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: var(--border-thick) solid var(--color-card);
-  box-shadow: var(--shadow-clay-sm);
+  gap: 3px;
 }
-.theme-card .theme-preview span {
+.theme-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+.theme-card.locked .theme-thumb { filter: grayscale(0.7) opacity(0.6); }
+
+/* 中间信息区 */
+.theme-info {
   flex: 1;
-  transition: flex 250ms ease;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-@media (hover: hover) {
-  .theme-card .theme-preview span:hover { flex: 2.2; }
-}
-.theme-card .theme-name {
+.theme-info .theme-name {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: var(--fs-md);
-  text-align: center;
   color: var(--color-text);
+  line-height: 1.2;
 }
-.theme-card .theme-desc {
+.theme-info .theme-desc {
   font-size: var(--fs-xs);
   color: var(--color-text-muted);
-  text-align: center;
   line-height: 1.4;
-  min-height: 2.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
-.theme-card.locked .theme-preview { filter: grayscale(0.7) opacity(0.6); }
-.theme-card.locked .theme-mascot { opacity: 0.55; filter: grayscale(0.5); }
 
-/* 操作区 */
-.theme-action { margin-top: auto; }
+/* 右侧操作区 */
+.theme-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
 .theme-status.using {
-  display: block;
-  text-align: center;
-  padding: 10px;
-  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--color-primary);
   font-family: var(--font-heading);
@@ -518,25 +520,27 @@
   font-size: var(--fs-sm);
 }
 .theme-status.locked {
-  display: block;
-  text-align: center;
-  padding: 10px;
-  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-full);
   background: var(--bg-secondary);
   color: var(--color-text-muted);
   font-weight: 600;
   font-size: var(--fs-xs);
 }
 .theme-use-btn, .theme-buy-btn {
-  width: 100%;
-  padding: 11px;
+  padding: 10px var(--space-md);
   min-height: 44px;
+  min-width: 72px;
   border: var(--border-thick) solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   font-family: var(--font-heading);
   font-size: var(--fs-sm);
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .theme-use-btn {

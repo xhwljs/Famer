@@ -384,9 +384,8 @@
    THEMES PAGE
    ============================================================ */
 .themes-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
+  display: flex;
+  flex-direction: column;
   padding-bottom: var(--space-lg);
 }
 
@@ -471,8 +470,7 @@
   .difficulty-card .dc-icon { width: 64px; height: 64px; font-size: 3rem; }
   .quiz-question { font-size: clamp(3rem, 2rem + 4vw, 5.5rem); }
   .key-btn { height: 80px; font-size: var(--fs-xxl); }
-  .badges-grid,
-  .themes-grid {
+  .badges-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-lg);
   }
@@ -911,13 +909,15 @@
 .theme-empty-btn:active { transform: scale(0.95); box-shadow: var(--shadow-press); }
 
 .themes-grid-inner {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: var(--space-md);
 }
 @media (min-width: 768px) {
   .themes-grid-inner {
-    grid-template-columns: repeat(3, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
   }
 }
 
