@@ -373,9 +373,10 @@
 
 /* ---------- Theme store card ---------- */
 .theme-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   padding: var(--space-md);
   background: var(--color-card);
   border: var(--border-thick) solid var(--color-border);
@@ -384,10 +385,61 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .theme-card:active { transform: scale(0.97); }
+.theme-card.current {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 2px var(--color-success), var(--shadow-clay-sm);
+}
+.theme-card.buyable {
+  border-color: var(--color-secondary);
+  animation: themeCardPulse 2.2s ease-in-out infinite;
+}
+@keyframes themeCardPulse {
+  0%, 100% { box-shadow: var(--shadow-clay-sm); }
+  50% { box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.25), var(--shadow-clay-sm); }
+}
+.theme-card.previewing {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: var(--shadow-clay), 0 0 0 3px var(--color-primary);
+}
+/* 主题预览：临时给 #app 叠加主色渐变（预览未购买主题配色） */
+#app.theme-preview-active::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--preview-bg, transparent);
+  transition: background 200ms ease;
+}
+/* 状态徽标 */
+.theme-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  z-index: 2;
+}
+.theme-badge.using { background: var(--color-success); color: #fff; }
+.theme-badge.free  { background: #E8F6EC; color: #2E7D32; }
+.theme-badge.owned { background: #E3F2FD; color: #1565C0; }
+/* 吉祥物 */
+.theme-mascot {
+  font-size: 2.2rem;
+  text-align: center;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.theme-mascot:hover { transform: scale(1.15) rotate(-6deg); }
 .theme-card .theme-preview {
   display: flex;
   gap: var(--space-xs);
-  height: 48px;
+  height: 42px;
   border-radius: var(--radius-sm);
   overflow: hidden;
   border: var(--border-thick) solid var(--color-border);
@@ -398,20 +450,172 @@
   font-weight: 700;
   font-size: var(--fs-sm);
   color: var(--color-text);
+  text-align: center;
 }
-.theme-card .theme-price {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.theme-card .theme-desc {
   font-size: var(--fs-xs);
-  color: var(--color-secondary);
-  font-weight: 700;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.4;
+  min-height: 2.4em;
 }
-.theme-card.locked .theme-preview { filter: grayscale(0.5) opacity(0.7); }
-.theme-card.owned .theme-price { color: var(--color-success); }
-.theme-card.active-theme {
-  border-color: var(--color-success);
-  box-shadow: 0 0 0 2px var(--color-success), var(--shadow-clay-sm);
+.theme-card.locked .theme-preview { filter: grayscale(0.6) opacity(0.65); }
+.theme-card.locked .theme-mascot { opacity: 0.6; }
+
+/* 操作区 */
+.theme-action { margin-top: auto; }
+.theme-status.using {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(107, 203, 119, 0.15);
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+.theme-status.locked {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(138, 138, 168, 0.12);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+}
+.theme-use-btn, .theme-buy-btn {
+  width: 100%;
+  padding: 9px;
+  min-height: 40px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+.theme-use-btn {
+  background: var(--color-card);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.theme-use-btn:active { transform: scale(0.95); }
+.theme-buy-btn {
+  background: var(--color-secondary);
+  color: #fff;
+  border-color: var(--color-secondary-dark, #D14B86);
+  box-shadow: var(--shadow-clay-sm);
+}
+.theme-buy-btn:active { transform: scale(0.95); }
+
+/* ---------- Toast 提示 ---------- */
+.theme-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translate(-50%, 40px);
+  z-index: 9500;
+  max-width: 88%;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--color-text, #3A3A5C);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.theme-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.theme-toast.success { background: var(--color-success, #6BCB77); }
+.theme-toast.warn { background: var(--color-danger, #FF6B6B); }
+
+/* ---------- 购买确认模态框 ---------- */
+.theme-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: rgba(0,0,0,0);
+  transition: background 200ms ease;
+}
+.theme-confirm-overlay.show { background: rgba(0,0,0,0.5); }
+.theme-confirm-modal {
+  width: 100%;
+  max-width: 340px;
+  padding: var(--space-lg);
+  background: var(--color-card, #fff);
+  border: var(--border-thick) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-clay);
+  text-align: center;
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease;
+}
+.theme-confirm-overlay.show .theme-confirm-modal {
+  transform: scale(1);
+  opacity: 1;
+}
+.tcm-mascot { font-size: 3rem; line-height: 1; }
+.tcm-title {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--fs-lg);
+  color: var(--color-text);
+  margin-top: var(--space-xs);
+}
+.tcm-desc {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-xs);
+  line-height: 1.4;
+}
+.tcm-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-soft, #F5F7FB);
+  border-radius: var(--radius-sm);
+}
+.tcm-cost { color: var(--color-danger); font-weight: 800; font-size: var(--fs-md); }
+.tcm-arrow { color: var(--color-text-muted); }
+.tcm-after { color: var(--color-success); font-weight: 700; font-size: var(--fs-md); }
+.tcm-after.negative { color: var(--color-danger); }
+.tcm-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); }
+.tcm-btn {
+  flex: 1;
+  padding: 12px;
+  min-height: 44px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+.tcm-btn:active { transform: scale(0.95); }
+.tcm-cancel {
+  background: var(--color-card, #fff);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+.tcm-ok {
+  background: var(--color-secondary);
+  color: #fff;
+  border-color: var(--color-secondary-dark, #D14B86);
 }
 
 /* ---------- Error book item ---------- */
